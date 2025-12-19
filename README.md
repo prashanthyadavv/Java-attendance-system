@@ -44,15 +44,6 @@ java -jar AttendanceSystem.jar
 2. Ensure Java 11+ is installed on target machine
 3. Run: `java -jar AttendanceSystem.jar`
 
-### 4. Deploy to GitHub
-```bash
-git init
-git add .
-git commit -m "Attendance Management System"
-git remote add origin https://github.com/YOUR_USERNAME/attendance-system.git
-git push -u origin main
-```
-
 ## Login Credentials
 
 | Role | Username | Password |
