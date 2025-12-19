@@ -1,0 +1,24 @@
+# Compiled files
+bin/
+*.class
+
+# Data files (user data - don't commit)
+data/
+
+# Distribution
+dist/
+
+# IDE files
+.idea/
+*.iml
+.vscode/
+.project
+.classpath
+.settings/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
