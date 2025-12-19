@@ -167,25 +167,6 @@ Each theme supports both **Dark Mode** 🌙 and **Light Mode** ☀️
 
 ---
 
-## 📈 Application Screenshots
-
-### Admin Dashboard
-- Manage all system entities
-- View system-wide statistics
-- Configure attendance rules
-
-### Teacher Dashboard
-- Mark student attendance
-- Edit attendance records
-- Generate class reports
-
-### Student Dashboard
-- View personal attendance
-- Track attendance percentage
-- Monitor detention status
-
----
-
 ## 🤝 Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
