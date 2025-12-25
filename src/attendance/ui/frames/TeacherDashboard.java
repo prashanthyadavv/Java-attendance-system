@@ -127,9 +127,18 @@ public class TeacherDashboard extends JFrame {
                 "\uD83D\uDCC5",
                 ThemeColors.ACCENT_BLUE));
 
+        // Calculate pending classes for today
+        int pendingCount = 0;
+        for (TeacherSubject ts : assignments) {
+            boolean markedToday = dataStore.getAttendanceBySubject(ts.getSubjectId()).stream()
+                    .anyMatch(a -> a.getDate().equals(LocalDate.now()));
+            if (!markedToday)
+                pendingCount++;
+        }
+
         cardsPanel.add(new DashboardCard(
                 "Pending Today",
-                "2",
+                String.valueOf(pendingCount),
                 "\u26A0",
                 ThemeColors.STATUS_WARNING));
 
@@ -363,9 +372,10 @@ public class TeacherDashboard extends JFrame {
             }
         });
 
-        // Auto-load students for the first section on panel creation
-        if (!allSections.isEmpty()) {
-            Section firstSection = allSections.get(0);
+        // Auto-load students for the first section in combo (teacher's assigned
+        // sections)
+        if (sectionCombo.getItemCount() > 0) {
+            Section firstSection = sectionCombo.getItemAt(0);
             List<Student> firstSectionStudents = dataStore.getStudentsBySection(firstSection.getId());
             for (Student s : firstSectionStudents) {
                 model.addRow(new Object[] { Boolean.TRUE, s.getRollNumber(), s.getName(), "Present", Boolean.FALSE });
@@ -396,15 +406,62 @@ public class TeacherDashboard extends JFrame {
 
         GlowButton submitBtn = new GlowButton("Submit Attendance", ThemeColors.ACCENT_CYAN);
         submitBtn.addActionListener(e -> {
+            Subject selectedSubject = (Subject) subjectCombo.getSelectedItem();
+            if (selectedSubject == null) {
+                JOptionPane.showMessageDialog(this, "Please select a subject!", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            LocalDate date;
+            try {
+                date = LocalDate.parse(dateField.getText());
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this, "Invalid date format! Use YYYY-MM-DD", "Error",
+                        JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            int period = (Integer) periodCombo.getSelectedItem();
+            int markedBy = currentTeacher != null ? currentTeacher.getId() : 0;
+
             int presentCount = 0;
             int absentCount = 0;
+
             for (int i = 0; i < model.getRowCount(); i++) {
-                boolean present = (Boolean) model.getValueAt(i, 0);
-                if (present)
-                    presentCount++;
-                else
+                String rollNumber = (String) model.getValueAt(i, 1);
+                String statusStr = (String) model.getValueAt(i, 3);
+                boolean lateEntry = (Boolean) model.getValueAt(i, 4);
+
+                // Map status string to AttendanceStatus enum
+                AttendanceStatus status;
+                if ("Absent".equals(statusStr)) {
+                    status = AttendanceStatus.ABSENT;
                     absentCount++;
+                } else if ("Late".equals(statusStr)) {
+                    status = AttendanceStatus.LATE;
+                    presentCount++;
+                } else {
+                    status = AttendanceStatus.PRESENT;
+                    presentCount++;
+                }
+
+                // Find student and add attendance record
+                Student student = dataStore.getStudentByRollNumber(rollNumber);
+                if (student != null) {
+                    dataStore.addAttendance(
+                            student.getId(),
+                            selectedSubject.getId(),
+                            date,
+                            period,
+                            status,
+                            markedBy,
+                            lateEntry);
+                }
             }
+
+            // Save to disk
+            dataStore.saveData();
+
             JOptionPane.showMessageDialog(this,
                     "Attendance submitted successfully!\n\nPresent: " + presentCount + "\nAbsent: " + absentCount,
                     "Success",
@@ -475,40 +532,93 @@ public class TeacherDashboard extends JFrame {
         // Attendance records table - load from DataStore
         String[] columns = { "Date", "Student", "Subject", "Period", "Status", "Action" };
 
-        // Get recent attendance records
-        List<Attendance> allRecords = dataStore.getAllAttendance();
-        // Filter to recent 7 days and sort
-        LocalDate fromDate = LocalDate.now().minusDays(7);
-        List<Attendance> recentRecords = allRecords.stream()
-                .filter(a -> !a.getDate().isBefore(fromDate))
-                .sorted((a, b) -> b.getDate().compareTo(a.getDate()))
-                .limit(50)
-                .toList();
+        // Use DefaultTableModel for dynamic updates
+        DefaultTableModel tableModel = new DefaultTableModel(columns, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
 
-        Object[][] data = new Object[recentRecords.size()][6];
-        for (int i = 0; i < recentRecords.size(); i++) {
-            Attendance a = recentRecords.get(i);
-            // Look up student name - try to find by student ID
-            String studentName = "-";
-            for (Student s : dataStore.getAllStudents()) {
-                if (s.getId() == a.getStudentId()) {
-                    studentName = s.getName();
-                    break;
-                }
+        // Get recent attendance records and store for reference
+        final List<Attendance>[] currentRecords = new List[] { new ArrayList<>() };
+
+        // Load initial data
+        Runnable loadTableData = () -> {
+            tableModel.setRowCount(0);
+            currentRecords[0].clear();
+
+            LocalDate fromDate, toDate;
+            try {
+                fromDate = LocalDate.parse(fromField.getText());
+                toDate = LocalDate.parse(toField.getText());
+            } catch (Exception ex) {
+                fromDate = LocalDate.now().minusDays(7);
+                toDate = LocalDate.now();
             }
 
-            Subject subject = dataStore.getSubjectById(a.getSubjectId());
-            data[i] = new Object[] {
-                    a.getDate().toString(),
-                    studentName,
-                    subject != null ? subject.getName() : "-",
-                    String.valueOf(a.getPeriod()),
-                    a.getStatus().toString(),
-                    "Edit"
-            };
-        }
+            String selectedStudent = (String) studentCombo.getSelectedItem();
 
-        JTable table = createStyledTable(columns, data);
+            List<Attendance> allRecords = dataStore.getAllAttendance();
+            final LocalDate finalFromDate = fromDate;
+            final LocalDate finalToDate = toDate;
+
+            List<Attendance> filteredRecords = allRecords.stream()
+                    .filter(a -> !a.getDate().isBefore(finalFromDate) && !a.getDate().isAfter(finalToDate))
+                    .filter(a -> {
+                        if ("All Students".equals(selectedStudent))
+                            return true;
+                        Student student = dataStore.getStudentById(a.getStudentId());
+                        if (student == null)
+                            return false;
+                        String studentStr = student.getRollNumber() + " - " + student.getName();
+                        return studentStr.equals(selectedStudent);
+                    })
+                    .sorted((a, b) -> b.getDate().compareTo(a.getDate()))
+                    .limit(50)
+                    .toList();
+
+            currentRecords[0] = new ArrayList<>(filteredRecords);
+
+            for (Attendance a : filteredRecords) {
+                String studentName = "-";
+                for (Student s : dataStore.getAllStudents()) {
+                    if (s.getId() == a.getStudentId()) {
+                        studentName = s.getName();
+                        break;
+                    }
+                }
+                Subject subject = dataStore.getSubjectById(a.getSubjectId());
+                tableModel.addRow(new Object[] {
+                        a.getDate().toString(),
+                        studentName,
+                        subject != null ? subject.getName() : "-",
+                        String.valueOf(a.getPeriod()),
+                        a.getStatus().toString(),
+                        "Edit"
+                });
+            }
+        };
+
+        // Load initial data
+        loadTableData.run();
+
+        // Search button action
+        searchBtn.addActionListener(e -> loadTableData.run());
+
+        JTable table = new JTable(tableModel);
+        table.setBackground(ThemeColors.BG_MEDIUM);
+        table.setForeground(ThemeColors.TEXT_PRIMARY);
+        table.setFont(ThemeColors.FONT_REGULAR);
+        table.setRowHeight(45);
+        table.setShowGrid(false);
+        table.setIntercellSpacing(new Dimension(0, 1));
+        table.setSelectionBackground(ThemeColors.withAlpha(ThemeColors.ACCENT_CYAN, 50));
+        table.setSelectionForeground(ThemeColors.TEXT_PRIMARY);
+        table.getTableHeader().setBackground(ThemeColors.BG_LIGHT);
+        table.getTableHeader().setForeground(ThemeColors.TEXT_SECONDARY);
+        table.getTableHeader().setFont(ThemeColors.FONT_BUTTON);
+        table.getTableHeader().setPreferredSize(new Dimension(0, 45));
 
         // Add click handler for Edit button
         table.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -516,9 +626,10 @@ public class TeacherDashboard extends JFrame {
             public void mouseClicked(java.awt.event.MouseEvent e) {
                 int row = table.rowAtPoint(e.getPoint());
                 int col = table.columnAtPoint(e.getPoint());
-                if (col == 5 && row >= 0 && row < recentRecords.size()) { // Edit column
-                    Attendance record = recentRecords.get(row);
+                if (col == 5 && row >= 0 && row < currentRecords[0].size()) { // Edit column
+                    Attendance record = currentRecords[0].get(row);
                     showEditAttendanceDialog(record);
+                    loadTableData.run(); // Refresh table after edit
                 }
             }
         });
@@ -580,14 +691,28 @@ public class TeacherDashboard extends JFrame {
     }
 
     private void refreshEditAttendancePanel() {
-        // Remove and rebuild the edit attendance panel
-        for (int i = 0; i < contentPanel.getComponentCount(); i++) {
-            Component comp = contentPanel.getComponent(i);
-            if (comp instanceof JPanel) {
-                // Rebuild all panels to refresh
-            }
+        // Remove old edit attendance panel and create new one
+        Component[] components = contentPanel.getComponents();
+        for (int i = 0; i < components.length; i++) {
+            // Find and remove the panel by checking if it's currently shown as
+            // EDIT_ATTENDANCE
+            // We need to track the panel names, so we'll rebuild by removing and re-adding
         }
+        // Remove the existing panel by name
+        for (Component comp : contentPanel.getComponents()) {
+            contentPanel.remove(comp);
+        }
+        // Rebuild all panels
+        contentPanel.add(createDashboardPanel(), "DASHBOARD");
+        contentPanel.add(createMarkAttendancePanel(), "MARK_ATTENDANCE");
+        contentPanel.add(createEditAttendancePanel(), "EDIT_ATTENDANCE");
+        contentPanel.add(createReportsPanel(), "REPORTS");
+        contentPanel.add(createClassesPanel(), "CLASSES");
+        contentPanel.add(new SettingsPanel(this), "SETTINGS");
+
         cardLayout.show(contentPanel, "EDIT_ATTENDANCE");
+        contentPanel.revalidate();
+        contentPanel.repaint();
     }
 
     private JPanel createReportsPanel() {
@@ -696,11 +821,13 @@ public class TeacherDashboard extends JFrame {
             Section section = dataStore.getSectionById(ts.getSectionId());
             int studentCount = dataStore.getStudentsBySection(ts.getSectionId()).size();
 
+            // Calculate actual average attendance for this subject/section
+            double avgAttendance = calculateSectionSubjectAttendance(ts.getSectionId(), ts.getSubjectId());
             data[i] = new Object[] {
                     subject != null ? subject.getName() : "-",
                     section != null ? section.getName() : "-",
                     studentCount,
-                    String.format("%.1f%%", 75 + Math.random() * 15)
+                    String.format("%.1f%%", avgAttendance)
             };
         }
 
@@ -773,6 +900,26 @@ public class TeacherDashboard extends JFrame {
 
     private int getUniqueSectionsCount(List<TeacherSubject> assignments) {
         return (int) assignments.stream().map(TeacherSubject::getSectionId).distinct().count();
+    }
+
+    /**
+     * Calculate average attendance percentage for a subject in a section
+     */
+    private double calculateSectionSubjectAttendance(int sectionId, int subjectId) {
+        List<Student> sectionStudents = dataStore.getStudentsBySection(sectionId);
+        if (sectionStudents.isEmpty())
+            return 0;
+
+        double totalPercentage = 0;
+        int studentCount = 0;
+        for (Student student : sectionStudents) {
+            double percentage = dataStore.calculateStudentSubjectAttendance(student.getId(), subjectId);
+            if (percentage > 0) {
+                totalPercentage += percentage;
+                studentCount++;
+            }
+        }
+        return studentCount > 0 ? totalPercentage / studentCount : 0;
     }
 
     private void performLogout() {

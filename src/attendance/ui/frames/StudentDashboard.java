@@ -439,10 +439,9 @@ public class StudentDashboard extends JFrame {
             daysGrid.add(new JLabel(""));
         }
 
-        // Days with attendance status
-        Random random = new Random(42);
+        // Days with attendance status from real data
         for (int day = 1; day <= daysInMonth; day++) {
-            JPanel dayCell = createDayCell(day, random);
+            JPanel dayCell = createDayCell(day);
             daysGrid.add(dayCell);
         }
 
@@ -471,7 +470,7 @@ public class StudentDashboard extends JFrame {
         return panel;
     }
 
-    private JPanel createDayCell(int day, Random random) {
+    private JPanel createDayCell(int day) {
         JPanel cell = new GradientPanel(true);
         cell.setLayout(new BorderLayout());
         cell.setPreferredSize(new Dimension(80, 60));
@@ -485,19 +484,39 @@ public class StudentDashboard extends JFrame {
 
         if (isWeekend || isFuture) {
             dayLabel.setForeground(ThemeColors.TEXT_MUTED);
-        } else {
-            // Simulate attendance status
-            double rand = random.nextDouble();
-            Color statusColor;
-            if (rand < 0.8) {
-                statusColor = ThemeColors.STATUS_SAFE;
-            } else if (rand < 0.95) {
-                statusColor = ThemeColors.STATUS_DANGER;
+        } else if (currentStudent != null) {
+            // Get actual attendance for this date
+            List<Attendance> dayAttendance = dataStore.getAttendanceByStudent(currentStudent.getId())
+                    .stream().filter(a -> a.getDate().equals(date)).toList();
+
+            if (dayAttendance.isEmpty()) {
+                // No attendance data for this day
+                dayLabel.setForeground(ThemeColors.TEXT_MUTED);
             } else {
-                statusColor = ThemeColors.STATUS_WARNING;
+                // Determine status color based on attendance records
+                long presentCount = dayAttendance.stream()
+                        .filter(a -> a.getStatus() == AttendanceStatus.PRESENT).count();
+                long absentCount = dayAttendance.stream()
+                        .filter(a -> a.getStatus() == AttendanceStatus.ABSENT).count();
+                long lateCount = dayAttendance.stream()
+                        .filter(a -> a.getStatus() == AttendanceStatus.LATE).count();
+
+                Color statusColor;
+                if (absentCount > 0) {
+                    statusColor = ThemeColors.STATUS_DANGER; // Any absent = red
+                } else if (lateCount > 0) {
+                    statusColor = ThemeColors.STATUS_WARNING; // Any late = yellow
+                } else if (presentCount > 0) {
+                    statusColor = ThemeColors.STATUS_SAFE; // All present = green
+                } else {
+                    statusColor = ThemeColors.TEXT_MUTED; // Fallback
+                }
+
+                dayLabel.setForeground(ThemeColors.TEXT_PRIMARY);
+                cell.setBackground(ThemeColors.withAlpha(statusColor, 50));
             }
-            dayLabel.setForeground(ThemeColors.TEXT_PRIMARY);
-            cell.setBackground(ThemeColors.withAlpha(statusColor, 50));
+        } else {
+            dayLabel.setForeground(ThemeColors.TEXT_MUTED);
         }
 
         cell.add(dayLabel, BorderLayout.CENTER);

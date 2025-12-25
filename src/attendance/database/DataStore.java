@@ -44,6 +44,10 @@ public class DataStore {
             // No saved data, initialize with sample data
             initializeSampleData();
             saveData(); // Save the sample data
+        } else if (attendanceRecords.isEmpty() && !students.isEmpty()) {
+            // Data exists but no attendance records - generate sample attendance
+            generateSampleAttendanceForExistingStudents();
+            saveData();
         }
     }
 
@@ -123,73 +127,159 @@ public class DataStore {
     }
 
     /**
-     * Initialize sample data for testing
+     * Initialize JBREC data
      */
     private void initializeSampleData() {
-        // Create departments
-        Department csDept = addDepartment("Computer Science", "CS", "Department of Computer Science and Engineering");
-        Department eceDept = addDepartment("Electronics", "ECE", "Department of Electronics and Communication");
-        Department mechDept = addDepartment("Mechanical", "MECH", "Department of Mechanical Engineering");
+        // Create CSE-DS Department
+        Department cseDsDept = addDepartment("Computer Science - Data Science", "CSE-DS",
+                "Department of Computer Science and Engineering (Data Science)");
 
-        // Create courses
-        Course btech_cs = addCourse(csDept.getId(), "B.Tech Computer Science", "BTCS", 4);
-        Course btech_ece = addCourse(eceDept.getId(), "B.Tech Electronics", "BTECE", 4);
-        Course btech_mech = addCourse(mechDept.getId(), "B.Tech Mechanical", "BTMECH", 4);
+        // Create B.Tech CSE-DS Course
+        Course btech_cse_ds = addCourse(cseDsDept.getId(), "B.Tech CSE Data Science", "BTCSEDS", 4);
 
-        // Create subjects for CS
-        Subject java = addSubject(btech_cs.getId(), "Java Programming", "CS201", 3, 4);
-        Subject dbms = addSubject(btech_cs.getId(), "Database Management", "CS202", 3, 4);
-        Subject os = addSubject(btech_cs.getId(), "Operating Systems", "CS203", 3, 3);
-        Subject cn = addSubject(btech_cs.getId(), "Computer Networks", "CS204", 4, 4);
-        Subject dsa = addSubject(btech_cs.getId(), "Data Structures", "CS205", 3, 4);
+        // Create subjects
+        Subject oopsJava = addSubject(btech_cse_ds.getId(), "OOPS JAVA", "CSDS201", 3, 4);
+        Subject dataStructures = addSubject(btech_cse_ds.getId(), "Data Structures", "CSDS202", 3, 4);
+        Subject dataViz = addSubject(btech_cse_ds.getId(), "Data Visualization", "CSDS203", 3, 3);
 
-        // Create subjects for ECE
-        Subject signals = addSubject(btech_ece.getId(), "Signals & Systems", "EC201", 3, 4);
-        Subject vlsi = addSubject(btech_ece.getId(), "VLSI Design", "EC202", 4, 4);
-
-        // Create sections
-        Section csA = addSection(btech_cs.getId(), "CS-A", "2024-25", 3);
-        Section csB = addSection(btech_cs.getId(), "CS-B", "2024-25", 3);
-        Section eceA = addSection(btech_ece.getId(), "ECE-A", "2024-25", 3);
+        // Create CSE-DS Section
+        Section cseDs = addSection(btech_cse_ds.getId(), "CSE-DS", "2024-25", 3);
 
         // Create admin user
-        addUser("admin", "admin123", Role.ADMIN, "admin@university.edu");
+        addUser("admin", "admin123", Role.ADMIN, "admin@jbrec.edu.in");
 
         // Create teachers
-        User t1User = addUser("john.smith", "teacher123", Role.TEACHER, "john.smith@university.edu");
-        Teacher t1 = addTeacher(t1User.getId(), "Dr. John Smith", csDept.getId());
+        User susmithaUser = addUser("susmitha", "susmitha", Role.TEACHER, "susmitha@jbrec.edu.in");
+        Teacher susmitha = addTeacher(susmithaUser.getId(), "Mrs. Susmitha", cseDsDept.getId());
 
-        User t2User = addUser("sarah.wilson", "teacher123", Role.TEACHER, "sarah.wilson@university.edu");
-        Teacher t2 = addTeacher(t2User.getId(), "Prof. Sarah Wilson", csDept.getId());
+        User gayatriUser = addUser("gayatri", "gayatri", Role.TEACHER, "gayatri@jbrec.edu.in");
+        Teacher gayatri = addTeacher(gayatriUser.getId(), "Mrs. Gayatri Tangirala", cseDsDept.getId());
 
-        User t3User = addUser("mike.brown", "teacher123", Role.TEACHER, "mike.brown@university.edu");
-        Teacher t3 = addTeacher(t3User.getId(), "Dr. Mike Brown", eceDept.getId());
+        User vaishnaviUser = addUser("vaishnavi", "vaishnavi", Role.TEACHER, "vaishnavi@jbrec.edu.in");
+        Teacher vaishnavi = addTeacher(vaishnaviUser.getId(), "Ms. Satya Vaishnavi", cseDsDept.getId());
 
         // Assign teachers to subjects
-        addTeacherSubject(t1.getId(), java.getId(), csA.getId());
-        addTeacherSubject(t1.getId(), java.getId(), csB.getId());
-        addTeacherSubject(t1.getId(), dsa.getId(), csA.getId());
-        addTeacherSubject(t2.getId(), dbms.getId(), csA.getId());
-        addTeacherSubject(t2.getId(), os.getId(), csA.getId());
-        addTeacherSubject(t3.getId(), signals.getId(), eceA.getId());
+        addTeacherSubject(susmitha.getId(), oopsJava.getId(), cseDs.getId());
+        addTeacherSubject(gayatri.getId(), dataStructures.getId(), cseDs.getId());
+        addTeacherSubject(vaishnavi.getId(), dataViz.getId(), cseDs.getId());
 
-        // Create students for CS-A
-        String[] studentNames = {
-                "Alice Johnson", "Bob Williams", "Charlie Davis", "Diana Miller",
-                "Edward Brown", "Fiona Taylor", "George Anderson", "Hannah Thomas",
-                "Ian Jackson", "Julia White"
-        };
+        // Create students for CSE-DS
+        List<Student> cseDsStudents = new ArrayList<>();
 
-        List<Student> csaStudents = new ArrayList<>();
-        for (int i = 0; i < studentNames.length; i++) {
-            String username = studentNames[i].toLowerCase().replace(" ", ".");
-            User sUser = addUser(username, "student123", Role.STUDENT, username + "@student.university.edu");
-            Student student = addStudent(sUser.getId(), csA.getId(), "CS" + String.format("%03d", i + 1),
-                    studentNames[i]);
-            csaStudents.add(student);
+        // Student 1: Prashanth Yadav Pittakala
+        User prashanthUser = addUser("24J21A6741", "24J21A6741", Role.STUDENT, "24J21A6741@JBREC.EDU.IN");
+        Student prashanth = addStudent(prashanthUser.getId(), cseDs.getId(), "24J21A6741", "Prashanth Yadav Pittakala");
+        cseDsStudents.add(prashanth);
+
+        // Student 2: Adi Keshav Reddy
+        User adiUser = addUser("24J21A6708", "24J21A6708", Role.STUDENT, "24J21A6708@JBREC.EDU.IN");
+        Student adi = addStudent(adiUser.getId(), cseDs.getId(), "24J21A6708", "Adi Keshav Reddy");
+        cseDsStudents.add(adi);
+
+        // Student 3: Jeshwanth Baikani
+        User jeshwanthUser = addUser("24J21A6705", "24J21A6705", Role.STUDENT, "24J21A6705@JBREC.EDU.IN");
+        Student jeshwanth = addStudent(jeshwanthUser.getId(), cseDs.getId(), "24J21A6705", "Jeshwanth Baikani");
+        cseDsStudents.add(jeshwanth);
+
+        // Student 4: Dhanalakshmi Bandari
+        User dhanaUser = addUser("24J21A6713", "24J21A6713", Role.STUDENT, "24J21A6713@JBREC.EDU.IN");
+        Student dhana = addStudent(dhanaUser.getId(), cseDs.getId(), "24J21A6713", "Dhanalakshmi Bandari");
+        cseDsStudents.add(dhana);
+
+        // Student 5: Srilatha Vemala
+        User srilathaUser = addUser("24J21A6754", "24J21A6754", Role.STUDENT, "24J21A6754@JBREC.EDU.IN");
+        Student srilatha = addStudent(srilathaUser.getId(), cseDs.getId(), "24J21A6754", "Srilatha Vemala");
+        cseDsStudents.add(srilatha);
+
+        // Generate sample attendance records for the past 30 days
+        LocalDate today = LocalDate.now();
+        Random random = new Random(42);
+
+        int[] subjectIds = { oopsJava.getId(), dataStructures.getId(), dataViz.getId() };
+        int[] teacherIds = { susmitha.getId(), gayatri.getId(), vaishnavi.getId() };
+
+        for (Student student : cseDsStudents) {
+            for (int i = 0; i < subjectIds.length; i++) {
+                int subjectId = subjectIds[i];
+                int teacherId = teacherIds[i];
+
+                for (int daysAgo = 30; daysAgo >= 1; daysAgo--) {
+                    LocalDate date = today.minusDays(daysAgo);
+                    if (date.getDayOfWeek().getValue() > 5)
+                        continue;
+
+                    double rand = random.nextDouble();
+                    AttendanceStatus status;
+                    if (rand < 0.85) {
+                        status = AttendanceStatus.PRESENT;
+                    } else if (rand < 0.95) {
+                        status = AttendanceStatus.ABSENT;
+                    } else {
+                        status = AttendanceStatus.LATE;
+                    }
+
+                    int period = (subjectId % 4) + 1;
+                    addAttendance(student.getId(), subjectId, date, period, status, teacherId, false);
+                }
+            }
+        }
+    }
+
+    /**
+     * Generate sample attendance for existing students (preserves all user data)
+     */
+    private void generateSampleAttendanceForExistingStudents() {
+        LocalDate today = LocalDate.now();
+        Random random = new Random(42);
+
+        List<Subject> allSubjects = getAllSubjects();
+        List<Student> allStudents = getAllStudents();
+
+        // Get first teacher ID for marking (or use 0 if none)
+        int markedBy = teachers.isEmpty() ? 0 : teachers.values().iterator().next().getId();
+
+        for (Student student : allStudents) {
+            // Get subjects for this student's section/course
+            Section section = getSectionById(student.getSectionId());
+            if (section == null)
+                continue;
+
+            List<Subject> courseSubjects = getSubjectsByCourse(section.getCourseId());
+            if (courseSubjects.isEmpty()) {
+                // Fallback: use first 4 subjects if course subjects not found
+                courseSubjects = allSubjects.stream().limit(4).toList();
+            }
+
+            for (Subject subject : courseSubjects) {
+                // Generate attendance for past 30 class days
+                for (int daysAgo = 30; daysAgo >= 1; daysAgo--) {
+                    LocalDate date = today.minusDays(daysAgo);
+                    // Skip weekends
+                    if (date.getDayOfWeek().getValue() > 5)
+                        continue;
+
+                    // Random attendance: 85% present, 10% absent, 5% late
+                    double rand = random.nextDouble();
+                    AttendanceStatus status;
+                    if (rand < 0.85) {
+                        status = AttendanceStatus.PRESENT;
+                    } else if (rand < 0.95) {
+                        status = AttendanceStatus.ABSENT;
+                    } else {
+                        status = AttendanceStatus.LATE;
+                    }
+
+                    int period = (subject.getId() % 4) + 1;
+                    // Add directly to list to avoid repeated saves
+                    Attendance attendance = new Attendance(
+                            nextAttendanceId++, student.getId(), subject.getId(),
+                            date, period, status, markedBy, false);
+                    attendanceRecords.add(attendance);
+                }
+            }
         }
 
-        // No sample attendance - users will add their own
+        System.out.println("[DataStore] Generated sample attendance for " + allStudents.size() + " students");
     }
 
     // === User operations ===
@@ -382,6 +472,13 @@ public class DataStore {
                 .toList();
     }
 
+    public Student getStudentByRollNumber(String rollNumber) {
+        return students.values().stream()
+                .filter(s -> s.getRollNumber().equals(rollNumber))
+                .findFirst()
+                .orElse(null);
+    }
+
     public void updateStudent(Student student) {
         students.put(student.getId(), student);
         saveData();
@@ -553,6 +650,7 @@ public class DataStore {
                 break;
             }
         }
+        saveData();
     }
 
     // === Attendance Rules ===

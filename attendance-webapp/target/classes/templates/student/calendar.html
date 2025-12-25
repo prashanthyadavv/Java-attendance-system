@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendar - Student</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link th:href="@{/css/styles.css}" rel="stylesheet">
+</head>
+
+<body>
+    <div class="dashboard">
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <h2>🎓 Attendance</h2>
+                <p class="text-muted" style="font-size: 0.8rem;">Student Portal</p>
+            </div>
+            <ul class="sidebar-nav">
+                <li><a th:href="@{/student/dashboard}">📊 Dashboard</a></li>
+                <li><a th:href="@{/student/calendar}" class="active">📅 Calendar</a></li>
+            </ul>
+            <div style="position: absolute; bottom: 2rem; left: 1rem; right: 1rem;">
+                <form th:action="@{/logout}" method="post">
+                    <button type="submit" class="btn btn-outline btn-block">🚪 Logout</button>
+                </form>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div class="page-header">
+                <h1>📅 Attendance Calendar</h1>
+                <div class="user-menu">
+                    <button id="themeToggle" onclick="toggleTheme()" class="btn btn-outline btn-sm"
+                        title="Toggle Theme">☀️</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3 class="mb-3"
+                    th:text="${(currentMonth != null ? currentMonth : 'Month') + ' ' + (currentYear != null ? currentYear : '')}">
+                    Month Year</h3>
+
+                <!-- Legend -->
+                <div class="flex mb-3" style="gap: 1.5rem;">
+                    <div class="flex" style="align-items: center; gap: 0.5rem;">
+                        <div
+                            style="width: 20px; height: 20px; background: rgba(0, 255, 136, 0.2); border: 1px solid var(--success); border-radius: 4px;">
+                        </div>
+                        <span>Present</span>
+                    </div>
+                    <div class="flex" style="align-items: center; gap: 0.5rem;">
+                        <div
+                            style="width: 20px; height: 20px; background: rgba(255, 59, 92, 0.2); border: 1px solid var(--danger); border-radius: 4px;">
+                        </div>
+                        <span>Absent</span>
+                    </div>
+                    <div class="flex" style="align-items: center; gap: 0.5rem;">
+                        <div
+                            style="width: 20px; height: 20px; background: rgba(255, 170, 0, 0.2); border: 1px solid var(--warning); border-radius: 4px;">
+                        </div>
+                        <span>Late</span>
+                    </div>
+                </div>
+
+                <!-- Calendar Grid -->
+                <div class="calendar">
+                    <!-- Headers -->
+                    <div class="calendar-header">Mon</div>
+                    <div class="calendar-header">Tue</div>
+                    <div class="calendar-header">Wed</div>
+                    <div class="calendar-header">Thu</div>
+                    <div class="calendar-header">Fri</div>
+                    <div class="calendar-header">Sat</div>
+                    <div class="calendar-header">Sun</div>
+
+                    <!-- Empty cells before first day -->
+                    <th:block th:if="${firstDayOfWeek != null and firstDayOfWeek > 1}">
+                        <div th:each="i : ${#numbers.sequence(1, firstDayOfWeek - 1)}" class="calendar-day"
+                            style="opacity: 0.3;"></div>
+                    </th:block>
+
+                    <!-- Days of month -->
+                    <th:block th:if="${daysInMonth != null and daysInMonth > 0}">
+                        <div th:each="day : ${#numbers.sequence(1, daysInMonth)}" class="calendar-day"
+                            th:classappend="${calendarData != null and calendarData.containsKey(day)} ? (${calendarData.get(day) == 'PRESENT'} ? 'present' : (${calendarData.get(day) == 'ABSENT'} ? 'absent' : 'late')) : ''"
+                            th:text="${day}">
+                        </div>
+                    </th:block>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script th:src="@{/js/theme.js}"></script>
+</body>
+
+</html>

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reports - Teacher</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link th:href="@{/css/styles.css}" rel="stylesheet">
+</head>
+
+<body>
+    <div class="dashboard">
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <h2>🎓 Attendance</h2>
+                <p class="text-muted" style="font-size: 0.8rem;">Teacher Panel</p>
+            </div>
+            <ul class="sidebar-nav">
+                <li><a th:href="@{/teacher/dashboard}">📊 Dashboard</a></li>
+                <li><a th:href="@{/teacher/mark-attendance}">✓ Mark Attendance</a></li>
+                <li><a th:href="@{/teacher/reports}" class="active">📈 Reports</a></li>
+            </ul>
+            <div style="position: absolute; bottom: 2rem; left: 1rem; right: 1rem;">
+                <form th:action="@{/logout}" method="post">
+                    <button type="submit" class="btn btn-outline btn-block">🚪 Logout</button>
+                </form>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div class="page-header">
+                <h1>📈 Attendance Reports</h1>
+                <div class="user-menu">
+                    <button id="themeToggle" onclick="toggleTheme()" class="btn btn-outline btn-sm"
+                        title="Toggle Theme">☀️</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3 class="mb-3">My Class Reports</h3>
+                <p class="text-muted mb-3">View attendance statistics for your assigned classes.</p>
+
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Subject</th>
+                                <th>Section</th>
+                                <th>Course</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="assign : ${assignments}" th:if="${assignments != null}">
+                                <td th:text="${assign.subject != null ? assign.subject.name : 'N/A'}"></td>
+                                <td><span class="badge badge-info"
+                                        th:text="${assign.section != null ? assign.section.name : 'N/A'}"></span></td>
+                                <td
+                                    th:text="${assign.section != null and assign.section.course != null ? assign.section.course.name : 'N/A'}">
+                                </td>
+                            </tr>
+                            <tr th:if="${assignments == null or #lists.isEmpty(assignments)}">
+                                <td colspan="3" class="text-center text-muted">No assignments found</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script th:src="@{/js/theme.js}"></script>
+</body>
+
+</html>

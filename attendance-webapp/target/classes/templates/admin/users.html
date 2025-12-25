@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Users - Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link th:href="@{/css/styles.css}" rel="stylesheet">
+</head>
+
+<body>
+    <div class="dashboard">
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <h2>🎓 Attendance</h2>
+            </div>
+            <ul class="sidebar-nav">
+                <li><a th:href="@{/admin/dashboard}">📊 Dashboard</a></li>
+                <li><a th:href="@{/admin/departments}">🏢 Departments</a></li>
+                <li><a th:href="@{/admin/courses}">📚 Courses</a></li>
+                <li><a th:href="@{/admin/subjects}">📖 Subjects</a></li>
+                <li><a th:href="@{/admin/sections}">👥 Sections</a></li>
+                <li><a th:href="@{/admin/users}" class="active">👤 Users</a></li>
+                <li><a th:href="@{/admin/allotments}">📋 Allotments</a></li>
+            </ul>
+            <div style="position: absolute; bottom: 2rem; left: 1rem; right: 1rem;">
+                <form th:action="@{/logout}" method="post">
+                    <button type="submit" class="btn btn-outline btn-block">🚪 Logout</button>
+                </form>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div class="page-header">
+                <h1>👤 Users</h1>
+                <div class="user-menu">
+                    <button id="themeToggle" onclick="toggleTheme()" class="btn btn-outline btn-sm"
+                        title="Toggle Theme">☀️</button>
+                </div>
+            </div>
+
+            <!-- Add User Form -->
+            <div class="card mb-4">
+                <h3 class="mb-3">Add New User</h3>
+                <form th:action="@{/admin/users/add}" method="post">
+                    <div class="grid grid-3 mb-2">
+                        <div class="form-group">
+                            <label>Username</label>
+                            <input type="text" name="username" class="form-control" placeholder="Username" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" name="email" class="form-control" placeholder="email@example.com"
+                                required>
+                        </div>
+                        <div class="form-group">
+                            <label>Password</label>
+                            <input type="password" name="password" class="form-control" placeholder="Password" required>
+                        </div>
+                    </div>
+                    <div class="grid grid-3">
+                        <div class="form-group">
+                            <label>Full Name</label>
+                            <input type="text" name="name" class="form-control" placeholder="Full Name" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Role</label>
+                            <select name="role" id="roleSelect" class="form-control" required>
+                                <option value="">Select Role</option>
+                                <option value="TEACHER">Teacher</option>
+                                <option value="STUDENT">Student</option>
+                            </select>
+                        </div>
+                        <div class="form-group" id="sectionGroup" style="display: none;">
+                            <label>Section (for Students)</label>
+                            <select name="sectionId" class="form-control">
+                                <option value="">Select Section</option>
+                                <option th:each="sec : ${sections}" th:if="${sections != null}" th:value="${sec.id}"
+                                    th:text="${sec.name}"></option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-success mt-3">+ Add User</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="card">
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Username</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="user : ${users}" th:if="${users != null}">
+                                <td th:text="${user.id}"></td>
+                                <td th:text="${user.username}"></td>
+                                <td th:text="${user.email}"></td>
+                                <td>
+                                    <span class="badge"
+                                        th:classappend="${user.role != null and user.role.name() == 'ADMIN'} ? 'badge-danger' : (${user.role != null and user.role.name() == 'TEACHER'} ? 'badge-warning' : 'badge-info')"
+                                        th:text="${user.role}"></span>
+                                </td>
+                                <td>
+                                    <span class="badge"
+                                        th:classappend="${user.active} ? 'badge-success' : 'badge-danger'"
+                                        th:text="${user.active} ? 'Active' : 'Inactive'"></span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script th:src="@{/js/theme.js}"></script>
+    <script>
+        document.getElementById('roleSelect').addEventListener('change', function () {
+            const sectionGroup = document.getElementById('sectionGroup');
+            if (this.value === 'STUDENT') {
+                sectionGroup.style.display = 'block';
+            } else {
+                sectionGroup.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+
+</html>

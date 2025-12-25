@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Attendance System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link th:href="@{/css/styles.css}" rel="stylesheet">
+</head>
+
+<body>
+    <div class="dashboard">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <h2>🎓 Attendance</h2>
+                <p class="text-muted" style="font-size: 0.8rem;">Admin Panel</p>
+            </div>
+            <ul class="sidebar-nav">
+                <li><a th:href="@{/admin/dashboard}" class="active">📊 Dashboard</a></li>
+                <li><a th:href="@{/admin/departments}">🏢 Departments</a></li>
+                <li><a th:href="@{/admin/courses}">📚 Courses</a></li>
+                <li><a th:href="@{/admin/subjects}">📖 Subjects</a></li>
+                <li><a th:href="@{/admin/sections}">👥 Sections</a></li>
+                <li><a th:href="@{/admin/users}">👤 Users</a></li>
+                <li><a th:href="@{/admin/allotments}">📋 Allotments</a></li>
+            </ul>
+            <div style="position: absolute; bottom: 2rem; left: 1rem; right: 1rem;">
+                <form th:action="@{/logout}" method="post">
+                    <button type="submit" class="btn btn-outline btn-block">🚪 Logout</button>
+                </form>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="page-header">
+                <h1>Dashboard Overview</h1>
+                <div class="user-menu">
+                    <button id="themeToggle" onclick="toggleTheme()" class="btn btn-outline btn-sm"
+                        title="Toggle Theme">☀️</button>
+                    <span class="text-muted">Welcome, Admin</span>
+                    <div class="user-avatar">A</div>
+                </div>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="grid grid-4 mb-4">
+                <div class="card stat-card">
+                    <div class="stat-value" th:text="${totalStudents != null ? totalStudents : 0}">0</div>
+                    <div class="stat-label">Total Students</div>
+                </div>
+                <div class="card stat-card">
+                    <div class="stat-value" th:text="${totalTeachers != null ? totalTeachers : 0}">0</div>
+                    <div class="stat-label">Total Teachers</div>
+                </div>
+                <div class="card stat-card">
+                    <div class="stat-value" th:text="${totalDepartments != null ? totalDepartments : 0}">0</div>
+                    <div class="stat-label">Departments</div>
+                </div>
+                <div class="card stat-card">
+                    <div class="stat-value" th:text="${totalCourses != null ? totalCourses : 0}">0</div>
+                    <div class="stat-label">Courses</div>
+                </div>
+            </div>
+
+            <div class="grid grid-2">
+                <div class="card">
+                    <h3 class="mb-3">Quick Actions</h3>
+                    <div class="grid grid-2">
+                        <a th:href="@{/admin/departments}" class="btn btn-outline">+ Add Department</a>
+                        <a th:href="@{/admin/courses}" class="btn btn-outline">+ Add Course</a>
+                        <a th:href="@{/admin/subjects}" class="btn btn-outline">+ Add Subject</a>
+                        <a th:href="@{/admin/sections}" class="btn btn-outline">+ Add Section</a>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3 class="mb-3">System Status</h3>
+                    <div class="mb-2">
+                        <span class="text-muted">Subjects:</span>
+                        <span th:text="${totalSubjects != null ? totalSubjects : 0}">0</span>
+                    </div>
+                    <div class="mb-2">
+                        <span class="text-muted">Sections:</span>
+                        <span th:text="${totalSections != null ? totalSections : 0}">0</span>
+                    </div>
+                    <div class="badge badge-success">System Online</div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script th:src="@{/js/theme.js}"></script>
+</body>
+
+</html>
