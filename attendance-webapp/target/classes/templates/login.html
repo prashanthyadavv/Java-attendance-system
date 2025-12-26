@@ -448,136 +448,119 @@
             document.querySelector('form').submit();
         }
 
-        // ========== CURSOR PARTICLE EFFECTS ==========
+        // ========== CONNECT LINES EFFECT ==========
         const canvas = document.getElementById('cursor-canvas');
         const ctx = canvas.getContext('2d');
-
-        // Set canvas to full screen
-        canvas.style.cssText = 'position:fixed;top:0;left:0;pointer-events:none;z-index:1000;';
+        canvas.style.cssText = 'position:fixed;top:0;left:0;pointer-events:none;z-index:5;';
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
 
         window.addEventListener('resize', () => {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
+            initNodes();
         });
 
-        // Particle class
-        class Particle {
-            constructor(x, y) {
-                this.x = x;
-                this.y = y;
-                this.size = Math.random() * 5 + 2;
-                this.speedX = Math.random() * 2 - 1;
-                this.speedY = Math.random() * 2 - 1;
-                this.life = 1;
-                this.decay = Math.random() * 0.02 + 0.02;
-                this.color = Math.random() > 0.5 ? '#00e5ff' : '#a855f7';
-            }
+        let mouseX = canvas.width / 2;
+        let mouseY = canvas.height / 2;
+        const nodes = [];
+        const nodeCount = 50;
 
-            update() {
-                this.x += this.speedX;
-                this.y += this.speedY;
-                this.life -= this.decay;
-                this.size *= 0.98;
-            }
-
-            draw() {
-                ctx.save();
-                ctx.globalAlpha = this.life;
-                ctx.fillStyle = this.color;
-                ctx.shadowBlur = 15;
-                ctx.shadowColor = this.color;
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.restore();
+        function initNodes() {
+            nodes.length = 0;
+            for (let i = 0; i < nodeCount; i++) {
+                nodes.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    vx: (Math.random() - 0.5) * 0.5,
+                    vy: (Math.random() - 0.5) * 0.5,
+                    radius: Math.random() * 2 + 1,
+                    color: Math.random() > 0.5 ? '#00e5ff' : '#a855f7'
+                });
             }
         }
-
-        let particles = [];
-        let mouseX = 0, mouseY = 0;
-        let lastX = 0, lastY = 0;
+        initNodes();
 
         document.addEventListener('mousemove', (e) => {
             mouseX = e.clientX;
             mouseY = e.clientY;
-
-            // Only create particles when mouse moves significantly
-            const dx = mouseX - lastX;
-            const dy = mouseY - lastY;
-            const distance = Math.sqrt(dx * dx + dy * dy);
-
-            if (distance > 5) {
-                for (let i = 0; i < 3; i++) {
-                    particles.push(new Particle(mouseX, mouseY));
-                }
-                lastX = mouseX;
-                lastY = mouseY;
-            }
         });
 
-        // Animation loop
         function animate() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            particles = particles.filter(p => p.life > 0);
+            nodes.forEach((node, i) => {
+                // Update position
+                node.x += node.vx;
+                node.y += node.vy;
+                if (node.x < 0 || node.x > canvas.width) node.vx *= -1;
+                if (node.y < 0 || node.y > canvas.height) node.vy *= -1;
 
-            particles.forEach(p => {
-                p.update();
-                p.draw();
+                // Draw node
+                ctx.beginPath();
+                ctx.arc(node.x, node.y, node.radius, 0, Math.PI * 2);
+                ctx.fillStyle = node.color;
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = node.color;
+                ctx.fill();
+                ctx.shadowBlur = 0;
+
+                // Connect to mouse
+                const dx = node.x - mouseX;
+                const dy = node.y - mouseY;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                if (dist < 200) {
+                    ctx.beginPath();
+                    ctx.moveTo(node.x, node.y);
+                    ctx.lineTo(mouseX, mouseY);
+                    ctx.strokeStyle = `rgba(0, 229, 255, ${1 - dist / 200})`;
+                    ctx.lineWidth = 1.5;
+                    ctx.stroke();
+                }
+
+                // Connect to other nodes
+                for (let j = i + 1; j < nodes.length; j++) {
+                    const dx2 = node.x - nodes[j].x;
+                    const dy2 = node.y - nodes[j].y;
+                    const dist2 = Math.sqrt(dx2 * dx2 + dy2 * dy2);
+                    if (dist2 < 100) {
+                        ctx.beginPath();
+                        ctx.moveTo(node.x, node.y);
+                        ctx.lineTo(nodes[j].x, nodes[j].y);
+                        ctx.strokeStyle = `rgba(168, 85, 247, ${0.3 * (1 - dist2 / 100)})`;
+                        ctx.lineWidth = 1;
+                        ctx.stroke();
+                    }
+                }
             });
 
-            // Limit particles for performance
-            if (particles.length > 100) {
-                particles.splice(0, particles.length - 100);
-            }
+            // Draw cursor glow
+            ctx.beginPath();
+            ctx.arc(mouseX, mouseY, 5, 0, Math.PI * 2);
+            ctx.fillStyle = '#00e5ff';
+            ctx.shadowBlur = 20;
+            ctx.shadowColor = '#00e5ff';
+            ctx.fill();
+            ctx.shadowBlur = 0;
 
             requestAnimationFrame(animate);
         }
         animate();
 
-        // ========== CARD TILT EFFECT ON MOUSE MOVE ==========
+        // ========== CARD TILT EFFECT ==========
         const card = document.querySelector('.login-card');
         const wrapper = document.querySelector('.login-wrapper');
+        card.style.transition = 'transform 0.1s ease';
 
         wrapper.addEventListener('mousemove', (e) => {
             const rect = card.getBoundingClientRect();
             const x = e.clientX - rect.left - rect.width / 2;
             const y = e.clientY - rect.top - rect.height / 2;
-
-            const rotateX = (y / rect.height) * -10;
-            const rotateY = (x / rect.width) * 10;
-
-            card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.02)`;
+            card.style.transform = `perspective(1000px) rotateX(${(y / rect.height) * -10}deg) rotateY(${(x / rect.width) * 10}deg) scale(1.02)`;
         });
 
         wrapper.addEventListener('mouseleave', () => {
             card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) scale(1)';
-        });
-
-        // Add smooth transition to card
-        card.style.transition = 'transform 0.1s ease';
-
-        // ========== GLOW EFFECT FOLLOWING CURSOR ==========
-        const glowEffect = document.createElement('div');
-        glowEffect.style.cssText = `
-            position: fixed;
-            width: 300px;
-            height: 300px;
-            border-radius: 50%;
-            background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
-            pointer-events: none;
-            z-index: 1;
-            opacity: 0.5;
-            transform: translate(-50%, -50%);
-            transition: opacity 0.3s ease;
-        `;
-        document.body.appendChild(glowEffect);
-
-        document.addEventListener('mousemove', (e) => {
-            glowEffect.style.left = e.clientX + 'px';
-            glowEffect.style.top = e.clientY + 'px';
         });
     </script>
 </body>
