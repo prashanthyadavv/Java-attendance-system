@@ -93,7 +93,12 @@ public class AdminController {
         return "redirect:/admin/courses";
     }
 
-    // Subject Management
+    @PostMapping("/courses/delete/{id}")
+    public String deleteCourse(@PathVariable Long id) {
+        courseRepository.deleteById(id);
+        return "redirect:/admin/courses";
+    }
+
     @GetMapping("/subjects")
     public String subjects(Model model) {
         model.addAttribute("subjects", subjectRepository.findAll());
@@ -108,6 +113,12 @@ public class AdminController {
         if (course != null) {
             subjectRepository.save(new Subject(course, name, code, semester, credits));
         }
+        return "redirect:/admin/subjects";
+    }
+
+    @PostMapping("/subjects/delete/{id}")
+    public String deleteSubject(@PathVariable Long id) {
+        subjectRepository.deleteById(id);
         return "redirect:/admin/subjects";
     }
 
@@ -126,6 +137,12 @@ public class AdminController {
         if (course != null) {
             sectionRepository.save(new Section(course, name, semester, year));
         }
+        return "redirect:/admin/sections";
+    }
+
+    @PostMapping("/sections/delete/{id}")
+    public String deleteSection(@PathVariable Long id) {
+        sectionRepository.deleteById(id);
         return "redirect:/admin/sections";
     }
 
@@ -172,6 +189,12 @@ public class AdminController {
         return "redirect:/admin/users";
     }
 
+    @PostMapping("/users/delete/{id}")
+    public String deleteUser(@PathVariable Long id) {
+        userRepository.deleteById(id);
+        return "redirect:/admin/users";
+    }
+
     // Teacher Assignment
     @GetMapping("/allotments")
     public String allotments(Model model) {
@@ -191,6 +214,12 @@ public class AdminController {
         if (teacher != null && subject != null && section != null) {
             teacherSubjectRepository.save(new TeacherSubject(teacher, subject, section));
         }
+        return "redirect:/admin/allotments";
+    }
+
+    @PostMapping("/allotments/delete/{id}")
+    public String deleteAllotment(@PathVariable Long id) {
+        teacherSubjectRepository.deleteById(id);
         return "redirect:/admin/allotments";
     }
 }

@@ -1,16 +1,25 @@
 <p align="center">
   <h1 align="center">🎓 University Attendance Management System</h1>
   <p align="center">
-    <strong>A modern, feature-rich Java Swing desktop application for managing university attendance with role-based access control and a stunning futuristic UI.</strong>
+    <strong>A modern attendance management system with both Desktop (Java Swing) and Web (Spring Boot) applications featuring a futuristic premium UI.</strong>
   </p>
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Java-11+-orange?style=for-the-badge&logo=java" alt="Java 11+">
-  <img src="https://img.shields.io/badge/Swing-GUI-blue?style=for-the-badge" alt="Swing GUI">
+  <img src="https://img.shields.io/badge/Java-17+-orange?style=for-the-badge&logo=openjdk" alt="Java 17+">
+  <img src="https://img.shields.io/badge/Spring_Boot-3.2-green?style=for-the-badge&logo=springboot" alt="Spring Boot">
+  <img src="https://img.shields.io/badge/Swing-Desktop-blue?style=for-the-badge" alt="Swing GUI">
   <img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge" alt="MIT License">
-  <img src="https://img.shields.io/badge/Platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey?style=for-the-badge" alt="Cross Platform">
 </p>
+
+---
+
+## 🚀 Two Deployment Options
+
+| Version | Technology | Run Command |
+|---------|------------|-------------|
+| 🖥️ **Desktop App** | Java Swing | `run.bat` |
+| 🌐 **Web App** | Spring Boot | `cd attendance-webapp && run-webapp.bat` |
 
 ---
 
@@ -19,182 +28,116 @@
 ### 🔐 Role-Based Access Control
 | Role | Capabilities |
 |------|-------------|
-| **👨‍💼 Admin** | Full system control - manage departments, courses, subjects, sections, users & allotments |
+| **👔 Admin** | Full system control - manage departments, courses, subjects, sections, users & allotments |
 | **👨‍🏫 Teacher** | Mark attendance, edit records, generate reports for assigned subjects |
-| **👨‍🎓 Student** | View personal attendance dashboard and statistics |
+| **🎒 Student** | View personal attendance dashboard, calendar, and statistics |
 
-### 🎨 Modern UI/UX
-- **3 Beautiful Themes**: Futuristic, Professional, User-Friendly
-- **2 Color Modes**: Dark Mode & Light Mode
-- **Custom Components**: Glowing buttons, gradient panels, circular progress bars
-- **Smooth Animations**: Visual feedback and transitions
-
-### 📊 Comprehensive Features
-- ✅ **Attendance Tracking** - Mark, edit, and manage daily attendance
-- 📈 **Visual Reports** - Charts and statistics for attendance analysis
-- 📤 **Export Options** - Export reports to CSV/PDF formats
-- ⚠️ **Detention System** - Configurable attendance thresholds & alerts
-- 💾 **Auto-Save** - Data persistence with automatic saving
+### 🎨 Premium Futuristic UI
+- **Glassmorphism Design** - Blur effects with transparency
+- **Neon Glow Accents** - Cyan & purple gradient highlights
+- **Dark/Light Themes** - Toggle with ☀️/🌙 button
+- **Smooth Animations** - Hover effects, transitions, micro-interactions
+- **Responsive Layout** - Works on desktop, tablet, and mobile
 
 ---
 
-## 🚀 Quick Start
+## 🌐 Web Application (NEW!)
 
-### Prerequisites
-- **Java 11** or higher installed on your system
-- Verify with: `java -version`
-
-### Option 1: Double-click to Run
-Simply double-click `run.bat` (Windows) or run `./run.sh` (Mac/Linux)
-
-### Option 2: Command Line
+### Quick Start
 ```bash
-# Navigate to project directory
-cd "JAVA attendence management app"
+cd attendance-webapp
+run-webapp.bat
+```
+Then open: **http://localhost:8080**
 
-# Compile
-javac -encoding UTF-8 -d bin -sourcepath src src/attendance/App.java src/attendance/**/*.java
+### 🔑 Login Credentials
+| Role | Username | Password |
+|:----:|:--------:|:--------:|
+| 👔 **Admin** | `admin` | `admin123` |
+| 👨‍🏫 **Teacher** | `john.smith` | `teacher123` |
+| 🎒 **Student** | `alice.johnson` | `student123` |
 
-# Run
+### 📦 Web App Tech Stack
+- **Backend**: Spring Boot 3.2, Spring Security, Spring Data JPA
+- **Frontend**: Thymeleaf, Custom CSS with CSS Variables
+- **Database**: H2 (in-memory)
+- **Build**: Maven
+
+---
+
+## 🖥️ Desktop Application
+
+### Quick Start
+```bash
+# Windows
+run.bat
+
+# Or compile manually
+javac -encoding UTF-8 -d bin -sourcepath src src/attendance/App.java
 java -cp bin attendance.App
 ```
 
----
-
-## 🔑 Demo Credentials
-
-| Role | Username | Password |
-|:----:|:--------:|:--------:|
-| 👨‍💼 **Admin** | `admin` | `admin123` |
-| 👨‍🏫 **Teacher** | `john.smith` | `teacher123` |
-| 👨‍🏫 **Teacher** | `sarah.jones` | `teacher123` |
-| 👨‍🎓 **Student** | `alice.johnson` | `student123` |
-
----
-
-## 📁 Project Structure
-
-```
-📦 JAVA Attendance Management App
-├── 📂 src/attendance/           # Source code
-│   ├── 📄 App.java              # Main entry point
-│   ├── 📂 models/               # Data models (13 classes)
-│   │   ├── User.java            # Base user class
-│   │   ├── Student.java         # Student entity
-│   │   ├── Teacher.java         # Teacher entity
-│   │   ├── Department.java      # Department entity
-│   │   ├── Course.java          # Course entity
-│   │   ├── Subject.java         # Subject entity
-│   │   ├── Section.java         # Section entity
-│   │   ├── Attendance.java      # Attendance record
-│   │   └── ...more
-│   ├── 📂 database/             # Data layer
-│   │   └── DataStore.java       # Singleton data manager
-│   ├── 📂 services/             # Business logic
-│   │   └── AuthService.java     # Authentication service
-│   └── 📂 ui/                   # User interface
-│       ├── 📂 frames/           # Main windows
-│       │   ├── LoginFrame.java
-│       │   ├── AdminDashboard.java
-│       │   ├── TeacherDashboard.java
-│       │   └── StudentDashboard.java
-│       ├── 📂 components/       # Reusable UI components
-│       │   ├── GlowButton.java
-│       │   ├── GradientPanel.java
-│       │   ├── CircularProgressBar.java
-│       │   ├── ChartPanel.java
-│       │   └── ...more
-│       └── 📂 theme/            # Theme system
-│           ├── ThemeColors.java
-│           ├── ThemeManager.java
-│           ├── FuturisticTheme.java
-│           ├── ProfessionalTheme.java
-│           └── ...more
-├── 📂 bin/                      # Compiled classes
-├── 📂 data/                     # Persisted data
-├── 📂 dist/                     # Deployable JAR
-├── 📂 reports/                  # Generated reports
-├── 📄 run.bat                   # Quick run script
-├── 📄 build.bat                 # Build JAR script
-└── 📄 MANIFEST.MF               # JAR manifest
-```
-
----
-
-## 🏗️ Building & Deployment
-
-### Create Deployable JAR
-```bash
-# Run the build script
-build.bat
-
-# Or manually create JAR
-jar cfm dist/AttendanceSystem.jar MANIFEST.MF -C bin .
-
-# Run the JAR anywhere with Java 11+
-java -jar dist/AttendanceSystem.jar
-```
-
-### Deploy to Another Computer
-1. Copy `dist/AttendanceSystem.jar` to target machine
-2. Ensure Java 11+ is installed
-3. Run: `java -jar AttendanceSystem.jar`
-
----
-
-## 🎨 Themes & Customization
-
-The application features a powerful theme system with **6 combinations**:
-
+### 🎨 Desktop Themes
 | Theme | Description |
 |-------|-------------|
 | 🌌 **Futuristic** | Neon accents with cyberpunk aesthetics |
 | 💼 **Professional** | Clean, corporate-friendly design |
 | 🎯 **User-Friendly** | Warm colors, high accessibility |
 
-Each theme supports both **Dark Mode** 🌙 and **Light Mode** ☀️
+---
+
+## 📁 Project Structure
+
+```
+📦 University Attendance System
+├── 📂 attendance-webapp/         # 🌐 Spring Boot Web Application
+│   ├── 📂 src/main/java/         # Java source code
+│   │   └── com/attendance/
+│   │       ├── controller/       # REST & MVC Controllers
+│   │       ├── model/            # JPA Entities
+│   │       ├── repository/       # Data Repositories
+│   │       └── service/          # Business Logic
+│   ├── 📂 src/main/resources/
+│   │   ├── templates/            # Thymeleaf HTML templates
+│   │   ├── static/css/           # Premium CSS with glassmorphism
+│   │   └── static/js/            # Theme toggle script
+│   ├── Dockerfile                # For cloud deployment
+│   └── pom.xml                   # Maven dependencies
+│
+├── 📂 src/attendance/            # 🖥️ Java Swing Desktop App
+│   ├── App.java                  # Entry point
+│   ├── 📂 models/                # Data models
+│   ├── 📂 database/              # DataStore
+│   └── 📂 ui/                    # Swing UI components
+│
+├── run.bat                       # Run desktop app
+└── README.md
+```
+
+---
+
+## ☁️ Cloud Deployment (Render)
+
+The web app can be deployed to Render.com:
+
+1. Push to GitHub
+2. Create new Web Service on Render
+3. Select **Docker** as runtime
+4. Set Root Directory: `attendance-webapp`
+5. Deploy!
 
 ---
 
 ## 🛠️ Technology Stack
 
-| Technology | Purpose |
-|------------|---------|
-| **Java 11+** | Core programming language |
-| **Swing** | Desktop GUI framework |
-| **Custom Components** | GlowButton, GradientPanel, etc. |
-| **Serialization** | Data persistence |
-
----
-
-## 📈 Application Screenshots
-
-### Admin Dashboard
-- Manage all system entities
-- View system-wide statistics
-- Configure attendance rules
-
-### Teacher Dashboard
-- Mark student attendance
-- Edit attendance records
-- Generate class reports
-
-### Student Dashboard
-- View personal attendance
-- Track attendance percentage
-- Monitor detention status
-
----
-
-## 🤝 Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+| Component | Technology |
+|-----------|------------|
+| **Web Backend** | Spring Boot 3.2, Java 17 |
+| **Web Frontend** | Thymeleaf, CSS3, JavaScript |
+| **Desktop App** | Java Swing |
+| **Database** | H2 (embedded) |
+| **Authentication** | Spring Security |
+| **Build Tool** | Maven |
 
 ---
 
