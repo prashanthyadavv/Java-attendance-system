@@ -869,3 +869,58 @@ tr:hover td {
     font-size: 1.5rem;
     cursor: pointer;
 }
+
+/* Sidebar Toggle Button */
+.sidebar-toggle {
+    position: fixed;
+    top: 1rem;
+    left: 250px;
+    z-index: 200;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    color: var(--text-primary);
+    font-size: 1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.sidebar-toggle:hover {
+    background: var(--accent);
+    color: white;
+}
+
+/* Collapsed Sidebar State */
+.dashboard.sidebar-collapsed .sidebar {
+    width: 0;
+    padding: 0;
+    overflow: hidden;
+    opacity: 0;
+}
+
+.dashboard.sidebar-collapsed .main-content {
+    margin-left: 0;
+}
+
+.dashboard.sidebar-collapsed .sidebar-toggle {
+    left: 1rem;
+}
+
+/* Transition for collapse */
+.sidebar {
+    transition: all 0.3s ease;
+}
+
+.main-content {
+    transition: margin-left 0.3s ease;
+}
+
+.sidebar-toggle {
+    transition: left 0.3s ease;
+}

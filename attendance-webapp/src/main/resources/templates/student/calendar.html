@@ -14,6 +14,7 @@
             gap: 4px;
             margin-top: 0.75rem;
         }
+
         .calendar-header {
             padding: 0.5rem;
             text-align: center;
@@ -21,6 +22,7 @@
             color: var(--text-muted);
             font-size: 0.9rem;
         }
+
         .calendar-day {
             min-height: 60px;
             padding: 0.4rem;
@@ -28,17 +30,21 @@
             background: var(--card-bg);
             border: 1px solid var(--border-color);
         }
+
         .calendar-day:hover {
             border-color: var(--primary);
         }
+
         .calendar-day.empty {
             opacity: 0.3;
         }
+
         .day-number {
             font-weight: 600;
             font-size: 0.95rem;
             margin-bottom: 0.2rem;
         }
+
         .subject-entry {
             display: flex;
             align-items: center;
@@ -50,21 +56,26 @@
             white-space: nowrap;
             overflow: hidden;
         }
+
         .subject-entry.present {
             background: rgba(0, 255, 136, 0.2);
             color: #00ff88;
         }
+
         .subject-entry.absent {
             background: rgba(255, 59, 92, 0.2);
             color: #ff3b5c;
         }
+
         .subject-entry.late {
             background: rgba(255, 170, 0, 0.2);
             color: #ffaa00;
         }
+
         .weekend {
             background: rgba(128, 128, 128, 0.05);
         }
+
         .month-nav {
             display: flex;
             align-items: center;
@@ -73,17 +84,20 @@
             margin-bottom: 1rem;
             flex-wrap: wrap;
         }
+
         .month-nav-buttons {
             display: flex;
             align-items: center;
             gap: 0.75rem;
         }
+
         .month-title {
             font-size: 1.25rem;
             font-weight: 600;
             min-width: 180px;
             text-align: center;
         }
+
         .month-selector select {
             padding: 0.4rem 0.5rem;
             border-radius: 5px;
@@ -92,22 +106,28 @@
             color: var(--text);
             font-size: 0.9rem;
         }
+
         .compact-card {
             padding: 1.25rem !important;
         }
-        .compact-table th, .compact-table td {
+
+        .compact-table th,
+        .compact-table td {
             padding: 0.5rem 0.6rem !important;
             font-size: 0.9rem;
         }
+
         .stat-mini {
             padding: 0.75rem;
             border-radius: 8px;
             text-align: center;
         }
+
         .stat-mini .value {
             font-size: 1.4rem;
             font-weight: 700;
         }
+
         .stat-mini .label {
             font-size: 0.85rem;
             color: var(--text-muted);
@@ -117,6 +137,9 @@
 
 <body>
     <div class="dashboard">
+        <!-- Sidebar Toggle Button -->
+        <button id="sidebarToggle" class="sidebar-toggle" onclick="toggleSidebar()" title="Collapse Sidebar">✕</button>
+
         <aside class="sidebar">
             <div class="sidebar-logo">
                 <h2>🎓 Attendance</h2>
@@ -136,23 +159,28 @@
         <main class="main-content" style="padding: 1.25rem;">
             <div class="page-header" style="margin-bottom: 1rem;">
                 <h1 style="font-size: 1.5rem;">📅 Attendance Calendar</h1>
-                <button id="themeToggle" onclick="toggleTheme()" class="btn btn-outline btn-sm" title="Toggle Theme">☀️</button>
+                <button id="themeToggle" onclick="toggleTheme()" class="btn btn-outline btn-sm"
+                    title="Toggle Theme">☀️</button>
             </div>
 
             <div class="card compact-card">
                 <!-- Month/Year Navigation -->
                 <div class="month-nav">
                     <div class="month-nav-buttons">
-                        <a th:href="@{/student/calendar(month=${prevMonth}, year=${prevYear})}" class="btn btn-outline btn-sm">← Prev</a>
+                        <a th:href="@{/student/calendar(month=${prevMonth}, year=${prevYear})}"
+                            class="btn btn-outline btn-sm">← Prev</a>
                         <span class="month-title" th:text="${currentMonth + ' ' + currentYear}">Month Year</span>
-                        <a th:href="@{/student/calendar(month=${nextMonth}, year=${nextYear})}" class="btn btn-outline btn-sm">Next →</a>
+                        <a th:href="@{/student/calendar(month=${nextMonth}, year=${nextYear})}"
+                            class="btn btn-outline btn-sm">Next →</a>
                     </div>
                     <form th:action="@{/student/calendar}" method="get" style="display: flex; gap: 0.5rem;">
                         <select name="month" onchange="this.form.submit()">
-                            <option th:each="m : ${months}" th:value="${m.value}" th:text="${m.name}" th:selected="${m.value == selectedMonth}"></option>
+                            <option th:each="m : ${months}" th:value="${m.value}" th:text="${m.name}"
+                                th:selected="${m.value == selectedMonth}"></option>
                         </select>
                         <select name="year" onchange="this.form.submit()">
-                            <option th:each="y : ${years}" th:value="${y}" th:text="${y}" th:selected="${y == selectedYear}"></option>
+                            <option th:each="y : ${years}" th:value="${y}" th:text="${y}"
+                                th:selected="${y == selectedYear}"></option>
                         </select>
                     </form>
                 </div>
@@ -185,7 +213,8 @@
                             <th:block th:if="${calendarData != null and calendarData.containsKey(day)}">
                                 <div th:each="entry : ${calendarData.get(day)}" class="subject-entry"
                                     th:classappend="${entry.value == 'PRESENT'} ? 'present' : (${entry.value == 'ABSENT'} ? 'absent' : 'late')">
-                                    <span th:text="${entry.value == 'PRESENT'} ? '✓' : (${entry.value == 'ABSENT'} ? '✗' : '⏰')"></span>
+                                    <span
+                                        th:text="${entry.value == 'PRESENT'} ? '✓' : (${entry.value == 'ABSENT'} ? '✗' : '⏰')"></span>
                                     <span th:text="${#strings.abbreviate(entry.key, 10)}"></span>
                                 </div>
                             </th:block>

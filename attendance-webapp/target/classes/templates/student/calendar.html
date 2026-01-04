@@ -11,25 +11,24 @@
         .calendar-grid {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
-            gap: 3px;
-            margin-top: 0.5rem;
+            gap: 4px;
+            margin-top: 0.75rem;
         }
 
         .calendar-header {
-            padding: 0.4rem;
+            padding: 0.5rem;
             text-align: center;
             font-weight: 600;
             color: var(--text-muted);
-            font-size: 0.75rem;
+            font-size: 0.9rem;
         }
 
         .calendar-day {
-            min-height: 50px;
-            padding: 0.3rem;
+            min-height: 60px;
+            padding: 0.4rem;
             border-radius: 6px;
             background: var(--card-bg);
             border: 1px solid var(--border-color);
-            font-size: 0.75rem;
         }
 
         .calendar-day:hover {
@@ -42,18 +41,18 @@
 
         .day-number {
             font-weight: 600;
-            font-size: 0.8rem;
-            margin-bottom: 0.15rem;
+            font-size: 0.95rem;
+            margin-bottom: 0.2rem;
         }
 
         .subject-entry {
             display: flex;
             align-items: center;
-            gap: 2px;
-            font-size: 0.6rem;
-            padding: 1px 3px;
-            border-radius: 2px;
-            margin-bottom: 1px;
+            gap: 3px;
+            font-size: 0.75rem;
+            padding: 2px 4px;
+            border-radius: 3px;
+            margin-bottom: 2px;
             white-space: nowrap;
             overflow: hidden;
         }
@@ -81,56 +80,56 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 0.5rem;
-            margin-bottom: 0.75rem;
+            gap: 1rem;
+            margin-bottom: 1rem;
             flex-wrap: wrap;
         }
 
         .month-nav-buttons {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 0.75rem;
         }
 
         .month-title {
-            font-size: 1.1rem;
+            font-size: 1.25rem;
             font-weight: 600;
-            min-width: 150px;
+            min-width: 180px;
             text-align: center;
         }
 
         .month-selector select {
-            padding: 0.3rem;
-            border-radius: 4px;
+            padding: 0.4rem 0.5rem;
+            border-radius: 5px;
             border: 1px solid var(--border-color);
             background: var(--card-bg);
             color: var(--text);
-            font-size: 0.8rem;
+            font-size: 0.9rem;
         }
 
         .compact-card {
-            padding: 1rem !important;
+            padding: 1.25rem !important;
         }
 
         .compact-table th,
         .compact-table td {
-            padding: 0.4rem 0.5rem !important;
-            font-size: 0.8rem;
+            padding: 0.5rem 0.6rem !important;
+            font-size: 0.9rem;
         }
 
         .stat-mini {
-            padding: 0.5rem;
-            border-radius: 6px;
+            padding: 0.75rem;
+            border-radius: 8px;
             text-align: center;
         }
 
         .stat-mini .value {
-            font-size: 1.2rem;
+            font-size: 1.4rem;
             font-weight: 700;
         }
 
         .stat-mini .label {
-            font-size: 0.7rem;
+            font-size: 0.85rem;
             color: var(--text-muted);
         }
     </style>
@@ -138,6 +137,9 @@
 
 <body>
     <div class="dashboard">
+        <!-- Sidebar Toggle Button -->
+        <button id="sidebarToggle" class="sidebar-toggle" onclick="toggleSidebar()" title="Collapse Sidebar">✕</button>
+
         <aside class="sidebar">
             <div class="sidebar-logo">
                 <h2>🎓 Attendance</h2>
@@ -154,9 +156,9 @@
             </div>
         </aside>
 
-        <main class="main-content" style="padding: 1rem;">
-            <div class="page-header" style="margin-bottom: 0.75rem;">
-                <h1 style="font-size: 1.3rem;">📅 Attendance Calendar</h1>
+        <main class="main-content" style="padding: 1.25rem;">
+            <div class="page-header" style="margin-bottom: 1rem;">
+                <h1 style="font-size: 1.5rem;">📅 Attendance Calendar</h1>
                 <button id="themeToggle" onclick="toggleTheme()" class="btn btn-outline btn-sm"
                     title="Toggle Theme">☀️</button>
             </div>
@@ -166,14 +168,12 @@
                 <div class="month-nav">
                     <div class="month-nav-buttons">
                         <a th:href="@{/student/calendar(month=${prevMonth}, year=${prevYear})}"
-                            class="btn btn-outline btn-sm" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">←
-                            Prev</a>
+                            class="btn btn-outline btn-sm">← Prev</a>
                         <span class="month-title" th:text="${currentMonth + ' ' + currentYear}">Month Year</span>
                         <a th:href="@{/student/calendar(month=${nextMonth}, year=${nextYear})}"
-                            class="btn btn-outline btn-sm" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">Next
-                            →</a>
+                            class="btn btn-outline btn-sm">Next →</a>
                     </div>
-                    <form th:action="@{/student/calendar}" method="get" style="display: flex; gap: 0.3rem;">
+                    <form th:action="@{/student/calendar}" method="get" style="display: flex; gap: 0.5rem;">
                         <select name="month" onchange="this.form.submit()">
                             <option th:each="m : ${months}" th:value="${m.value}" th:text="${m.name}"
                                 th:selected="${m.value == selectedMonth}"></option>
@@ -186,10 +186,10 @@
                 </div>
 
                 <!-- Legend -->
-                <div style="display: flex; gap: 1rem; margin-bottom: 0.5rem; font-size: 0.75rem;">
-                    <span>✓ Present</span>
-                    <span>✗ Absent</span>
-                    <span>⏰ Late</span>
+                <div style="display: flex; gap: 1.5rem; margin-bottom: 0.75rem; font-size: 0.9rem;">
+                    <span style="color: #00ff88;">✓ Present</span>
+                    <span style="color: #ff3b5c;">✗ Absent</span>
+                    <span style="color: #ffaa00;">⏰ Late</span>
                 </div>
 
                 <!-- Calendar Grid -->
@@ -215,7 +215,7 @@
                                     th:classappend="${entry.value == 'PRESENT'} ? 'present' : (${entry.value == 'ABSENT'} ? 'absent' : 'late')">
                                     <span
                                         th:text="${entry.value == 'PRESENT'} ? '✓' : (${entry.value == 'ABSENT'} ? '✗' : '⏰')"></span>
-                                    <span th:text="${#strings.abbreviate(entry.key, 8)}"></span>
+                                    <span th:text="${#strings.abbreviate(entry.key, 10)}"></span>
                                 </div>
                             </th:block>
                         </div>
@@ -224,7 +224,7 @@
             </div>
 
             <!-- Monthly Summary -->
-            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem; margin: 0.75rem 0;">
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.75rem; margin: 1rem 0;">
                 <div class="stat-mini" style="background: rgba(0, 255, 136, 0.1);">
                     <div class="value" style="color: #00ff88;" th:text="${monthlyPresent}">0</div>
                     <div class="label">Present</div>
@@ -245,8 +245,8 @@
 
             <!-- Detailed Attendance List -->
             <div class="card compact-card">
-                <h3 style="font-size: 1rem; margin-bottom: 0.5rem;">📋 Attendance Records</h3>
-                <div class="table-container" style="max-height: 250px; overflow-y: auto;">
+                <h3 style="font-size: 1.1rem; margin-bottom: 0.75rem;">📋 Attendance Records</h3>
+                <div class="table-container" style="max-height: 280px; overflow-y: auto;">
                     <table class="compact-table">
                         <thead style="position: sticky; top: 0; background: var(--card-bg);">
                             <tr>
@@ -260,9 +260,9 @@
                             <tr th:each="record : ${attendanceList}">
                                 <td th:text="${#temporals.format(record.date, 'dd MMM')}"></td>
                                 <td th:text="${#strings.abbreviate(#temporals.dayOfWeekName(record.date), 3)}"></td>
-                                <td th:text="${#strings.abbreviate(record.subject.name, 12)}"></td>
+                                <td th:text="${record.subject.name}"></td>
                                 <td>
-                                    <span class="badge" style="font-size: 0.7rem; padding: 0.15rem 0.4rem;"
+                                    <span class="badge" style="font-size: 0.8rem;"
                                         th:classappend="${record.status.name() == 'PRESENT'} ? 'badge-success' : (${record.status.name() == 'ABSENT'} ? 'badge-danger' : 'badge-warning')"
                                         th:text="${record.status}"></span>
                                 </td>
