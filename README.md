@@ -125,18 +125,6 @@ java -cp bin attendance.App
 
 ---
 
-## ☁️ Cloud Deployment (Render)
-
-The web app can be deployed to Render.com:
-
-1. Push to GitHub
-2. Create new Web Service on Render
-3. Select **Docker** as runtime
-4. Set Root Directory: `attendance-webapp`
-5. Deploy!
-
----
-
 ## 🛠️ Technology Stack
 
 | Component | Technology |
