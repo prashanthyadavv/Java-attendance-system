@@ -63,9 +63,9 @@ public class StudentController {
             String subjectName = att.getSubject().getName();
             subjectWise.computeIfAbsent(subjectName, k -> new HashMap<>());
             Map<String, Long> stats = subjectWise.get(subjectName);
-            stats.put("total", stats.getOrDefault("total", 0L) + 1L);
+            stats.merge("total", 1L, Long::sum);
             if (att.getStatus() == AttendanceStatus.PRESENT || att.getStatus() == AttendanceStatus.LATE) {
-                stats.put("present", stats.getOrDefault("present", 0L) + 1L);
+                stats.merge("present", 1L, Long::sum);
             }
         }
 

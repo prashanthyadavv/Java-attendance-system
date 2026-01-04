@@ -86,8 +86,6 @@
                                 <td><span class="badge badge-info" th:text="${dept.code}"></span></td>
                                 <td th:text="${dept.description}"></td>
                                 <td>
-                                    <button type="button" class="btn btn-primary btn-sm"
-                                        th:onclick="'openEditModal(' + ${dept.id} + ', \'' + ${dept.name} + '\', \'' + ${dept.code} + '\', \'' + (${dept.description} ?: '') + '\')'">Edit</button>
                                     <form th:action="@{'/admin/departments/delete/' + ${dept.id}}" method="post"
                                         style="display:inline;">
                                         <button type="submit" class="btn btn-danger btn-sm"
@@ -101,46 +99,7 @@
             </div>
         </main>
     </div>
-
-    <!-- Edit Modal -->
-    <div id="editModal" class="modal"
-        style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:1000; align-items:center; justify-content:center;">
-        <div class="modal-content card" style="max-width:500px; margin:auto; margin-top:10%;">
-            <h3 class="mb-3">Edit Department</h3>
-            <form id="editForm" method="post">
-                <div class="form-group">
-                    <label>Name</label>
-                    <input type="text" id="editName" name="name" class="form-control" required>
-                </div>
-                <div class="form-group">
-                    <label>Code</label>
-                    <input type="text" id="editCode" name="code" class="form-control" required>
-                </div>
-                <div class="form-group">
-                    <label>Description</label>
-                    <input type="text" id="editDescription" name="description" class="form-control">
-                </div>
-                <div style="display:flex; gap:1rem; justify-content:flex-end;">
-                    <button type="button" class="btn btn-outline" onclick="closeEditModal()">Cancel</button>
-                    <button type="submit" class="btn btn-success">Save Changes</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
     <script th:src="@{/js/theme.js}"></script>
-    <script>
-        function openEditModal(id, name, code, description) {
-            document.getElementById('editForm').action = '/admin/departments/edit/' + id;
-            document.getElementById('editName').value = name;
-            document.getElementById('editCode').value = code;
-            document.getElementById('editDescription').value = description;
-            document.getElementById('editModal').style.display = 'flex';
-        }
-        function closeEditModal() {
-            document.getElementById('editModal').style.display = 'none';
-        }
-    </script>
 </body>
 
 </html>

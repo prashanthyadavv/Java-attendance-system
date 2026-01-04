@@ -90,25 +90,6 @@ public class AdminController {
         return "redirect:/admin/departments";
     }
 
-    @PostMapping("/departments/edit/{id}")
-    public String editDepartment(@PathVariable Long id, @RequestParam String name,
-            @RequestParam String code, @RequestParam(required = false) String description,
-            RedirectAttributes redirectAttributes) {
-        try {
-            Department dept = departmentRepository.findById(id).orElse(null);
-            if (dept != null) {
-                dept.setName(name);
-                dept.setCode(code);
-                dept.setDescription(description);
-                departmentRepository.save(dept);
-                redirectAttributes.addFlashAttribute("success", "Department updated successfully!");
-            }
-        } catch (DataIntegrityViolationException e) {
-            redirectAttributes.addFlashAttribute("error", "Department code already exists!");
-        }
-        return "redirect:/admin/departments";
-    }
-
     // Course Management
     @GetMapping("/courses")
     public String courses(Model model) {
@@ -139,29 +120,7 @@ public class AdminController {
             courseRepository.deleteById(id);
             redirectAttributes.addFlashAttribute("success", "Course deleted successfully!");
         } catch (DataIntegrityViolationException e) {
-            redirectAttributes.addFlashAttribute("error",
-                    "Cannot delete: Course has sections or subjects linked to it!");
-        }
-        return "redirect:/admin/courses";
-    }
-
-    @PostMapping("/courses/edit/{id}")
-    public String editCourse(@PathVariable Long id, @RequestParam Long departmentId,
-            @RequestParam String name, @RequestParam String code, @RequestParam int durationYears,
-            RedirectAttributes redirectAttributes) {
-        try {
-            Course course = courseRepository.findById(id).orElse(null);
-            Department dept = departmentRepository.findById(departmentId).orElse(null);
-            if (course != null && dept != null) {
-                course.setDepartment(dept);
-                course.setName(name);
-                course.setCode(code);
-                course.setDurationYears(durationYears);
-                courseRepository.save(course);
-                redirectAttributes.addFlashAttribute("success", "Course updated successfully!");
-            }
-        } catch (DataIntegrityViolationException e) {
-            redirectAttributes.addFlashAttribute("error", "Course code already exists!");
+            redirectAttributes.addFlashAttribute("error", "Cannot delete: Course has sections or subjects linked to it!");
         }
         return "redirect:/admin/courses";
     }
@@ -196,31 +155,7 @@ public class AdminController {
             subjectRepository.deleteById(id);
             redirectAttributes.addFlashAttribute("success", "Subject deleted successfully!");
         } catch (DataIntegrityViolationException e) {
-            redirectAttributes.addFlashAttribute("error",
-                    "Cannot delete: Subject has allotments or attendance records!");
-        }
-        return "redirect:/admin/subjects";
-    }
-
-    @PostMapping("/subjects/edit/{id}")
-    public String editSubject(@PathVariable Long id, @RequestParam Long courseId,
-            @RequestParam String name, @RequestParam String code,
-            @RequestParam int semester, @RequestParam int credits,
-            RedirectAttributes redirectAttributes) {
-        try {
-            Subject subject = subjectRepository.findById(id).orElse(null);
-            Course course = courseRepository.findById(courseId).orElse(null);
-            if (subject != null && course != null) {
-                subject.setCourse(course);
-                subject.setName(name);
-                subject.setCode(code);
-                subject.setSemester(semester);
-                subject.setCredits(credits);
-                subjectRepository.save(subject);
-                redirectAttributes.addFlashAttribute("success", "Subject updated successfully!");
-            }
-        } catch (DataIntegrityViolationException e) {
-            redirectAttributes.addFlashAttribute("error", "Subject code already exists!");
+            redirectAttributes.addFlashAttribute("error", "Cannot delete: Subject has allotments or attendance records!");
         }
         return "redirect:/admin/subjects";
     }
@@ -254,29 +189,7 @@ public class AdminController {
             sectionRepository.deleteById(id);
             redirectAttributes.addFlashAttribute("success", "Section deleted successfully!");
         } catch (DataIntegrityViolationException e) {
-            redirectAttributes.addFlashAttribute("error",
-                    "Cannot delete: Section has students or allotments linked to it!");
-        }
-        return "redirect:/admin/sections";
-    }
-
-    @PostMapping("/sections/edit/{id}")
-    public String editSection(@PathVariable Long id, @RequestParam Long courseId,
-            @RequestParam String name, @RequestParam int semester, @RequestParam int year,
-            RedirectAttributes redirectAttributes) {
-        try {
-            Section section = sectionRepository.findById(id).orElse(null);
-            Course course = courseRepository.findById(courseId).orElse(null);
-            if (section != null && course != null) {
-                section.setCourse(course);
-                section.setName(name);
-                section.setSemester(semester);
-                section.setYear(year);
-                sectionRepository.save(section);
-                redirectAttributes.addFlashAttribute("success", "Section updated successfully!");
-            }
-        } catch (DataIntegrityViolationException e) {
-            redirectAttributes.addFlashAttribute("error", "Section name already exists!");
+            redirectAttributes.addFlashAttribute("error", "Cannot delete: Section has students or allotments linked to it!");
         }
         return "redirect:/admin/sections";
     }
@@ -355,8 +268,7 @@ public class AdminController {
                     studentRepository.delete(student);
                 }
 
-                // If user is a teacher, delete their subject assignments first, then the
-                // teacher
+                // If user is a teacher, delete their subject assignments first, then the teacher
                 Optional<Teacher> teacherOpt = teacherRepository.findByUser(user);
                 if (teacherOpt.isPresent()) {
                     Teacher teacher = teacherOpt.get();

@@ -38,12 +38,6 @@
                 </div>
             </div>
 
-            <!-- Error Messages -->
-            <div th:if="${param.error}" class="alert alert-danger" role="alert">
-                <span th:if="${param.error[0] == 'future'}">Cannot mark attendance for future dates!</span>
-                <span th:if="${param.error[0] == 'invalid'}">Invalid subject or section selected!</span>
-            </div>
-
             <div class="card mb-4">
                 <h3 class="mb-3">Select Class</h3>
                 <form id="selectForm" class="grid grid-3">
@@ -65,8 +59,7 @@
                     </div>
                     <div class="form-group">
                         <label>Date</label>
-                        <input type="date" id="dateInput" class="form-control" th:value="${today}" th:max="${today}"
-                            required>
+                        <input type="date" id="dateInput" class="form-control" th:value="${today}" required>
                     </div>
                 </form>
             </div>
