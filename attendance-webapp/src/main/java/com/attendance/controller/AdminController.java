@@ -90,6 +90,25 @@ public class AdminController {
         return "redirect:/admin/departments";
     }
 
+    @PostMapping("/departments/edit/{id}")
+    public String editDepartment(@PathVariable Long id, @RequestParam String name,
+            @RequestParam String code, @RequestParam(required = false) String description,
+            RedirectAttributes redirectAttributes) {
+        try {
+            Department dept = departmentRepository.findById(id).orElse(null);
+            if (dept != null) {
+                dept.setName(name);
+                dept.setCode(code);
+                dept.setDescription(description);
+                departmentRepository.save(dept);
+                redirectAttributes.addFlashAttribute("success", "Department updated successfully!");
+            }
+        } catch (DataIntegrityViolationException e) {
+            redirectAttributes.addFlashAttribute("error", "Department code already exists!");
+        }
+        return "redirect:/admin/departments";
+    }
+
     // Course Management
     @GetMapping("/courses")
     public String courses(Model model) {
@@ -120,7 +139,29 @@ public class AdminController {
             courseRepository.deleteById(id);
             redirectAttributes.addFlashAttribute("success", "Course deleted successfully!");
         } catch (DataIntegrityViolationException e) {
-            redirectAttributes.addFlashAttribute("error", "Cannot delete: Course has sections or subjects linked to it!");
+            redirectAttributes.addFlashAttribute("error",
+                    "Cannot delete: Course has sections or subjects linked to it!");
+        }
+        return "redirect:/admin/courses";
+    }
+
+    @PostMapping("/courses/edit/{id}")
+    public String editCourse(@PathVariable Long id, @RequestParam Long departmentId,
+            @RequestParam String name, @RequestParam String code, @RequestParam int durationYears,
+            RedirectAttributes redirectAttributes) {
+        try {
+            Course course = courseRepository.findById(id).orElse(null);
+            Department dept = departmentRepository.findById(departmentId).orElse(null);
+            if (course != null && dept != null) {
+                course.setDepartment(dept);
+                course.setName(name);
+                course.setCode(code);
+                course.setDurationYears(durationYears);
+                courseRepository.save(course);
+                redirectAttributes.addFlashAttribute("success", "Course updated successfully!");
+            }
+        } catch (DataIntegrityViolationException e) {
+            redirectAttributes.addFlashAttribute("error", "Course code already exists!");
         }
         return "redirect:/admin/courses";
     }
@@ -155,7 +196,8 @@ public class AdminController {
             subjectRepository.deleteById(id);
             redirectAttributes.addFlashAttribute("success", "Subject deleted successfully!");
         } catch (DataIntegrityViolationException e) {
-            redirectAttributes.addFlashAttribute("error", "Cannot delete: Subject has allotments or attendance records!");
+            redirectAttributes.addFlashAttribute("error",
+                    "Cannot delete: Subject has allotments or attendance records!");
         }
         return "redirect:/admin/subjects";
     }
@@ -189,7 +231,8 @@ public class AdminController {
             sectionRepository.deleteById(id);
             redirectAttributes.addFlashAttribute("success", "Section deleted successfully!");
         } catch (DataIntegrityViolationException e) {
-            redirectAttributes.addFlashAttribute("error", "Cannot delete: Section has students or allotments linked to it!");
+            redirectAttributes.addFlashAttribute("error",
+                    "Cannot delete: Section has students or allotments linked to it!");
         }
         return "redirect:/admin/sections";
     }
@@ -268,7 +311,8 @@ public class AdminController {
                     studentRepository.delete(student);
                 }
 
-                // If user is a teacher, delete their subject assignments first, then the teacher
+                // If user is a teacher, delete their subject assignments first, then the
+                // teacher
                 Optional<Teacher> teacherOpt = teacherRepository.findByUser(user);
                 if (teacherOpt.isPresent()) {
                     Teacher teacher = teacherOpt.get();

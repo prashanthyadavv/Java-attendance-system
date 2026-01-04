@@ -10,6 +10,10 @@
   <img src="https://img.shields.io/badge/Spring_Boot-3.2-green?style=for-the-badge&logo=springboot" alt="Spring Boot">
   <img src="https://img.shields.io/badge/Swing-Desktop-blue?style=for-the-badge" alt="Swing GUI">
   <img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge" alt="MIT License">
+  <br>
+  <a href="https://java-attendance-system.onrender.com/">
+    <img src="https://img.shields.io/badge/Live_Demo-Click_Here-FF5722?style=for-the-badge&logo=render" alt="Live Demo">
+  </a>
 </p>
 
 ---
@@ -43,6 +47,11 @@
 
 ## 🌐 Web Application (NEW!)
 
+### 🚀 Live Demo
+**Try it online: [https://java-attendance-system.onrender.com/](https://java-attendance-system.onrender.com/)**
+
+*Note: The demo is hosted on Render free tier and may spin down. Please wait 1-2 minutes for the first request.*
+
 ### Quick Start
 ```bash
 cd attendance-webapp
@@ -53,9 +62,9 @@ Then open: **http://localhost:8080**
 ### 🔑 Login Credentials
 | Role | Username | Password |
 |:----:|:--------:|:--------:|
-| 👔 **Admin** | `admin` | `admin123` |
-| 👨‍🏫 **Teacher** | `john.smith` | `teacher123` |
-| 🎒 **Student** | `alice.johnson` | `student123` |
+| 👔 **Admin** | `admin` | `cybrito` |
+| 👨‍🏫 **Teacher** | `susmitha` | `susmitha` |
+| 🎒 **Student** | `24j21a6741` | `24j21a6741` |
 
 ### 📦 Web App Tech Stack
 - **Backend**: Spring Boot 3.2, Spring Security, Spring Data JPA
