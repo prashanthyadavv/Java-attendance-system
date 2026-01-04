@@ -40,6 +40,10 @@
                 </div>
             </div>
 
+            <!-- Alert Messages -->
+            <div th:if="${success}" class="alert alert-success" role="alert" th:text="${success}"></div>
+            <div th:if="${error}" class="alert alert-danger" role="alert" th:text="${error}"></div>
+
             <div class="card mb-4">
                 <h3 class="mb-3">Add New Subject</h3>
                 <form th:action="@{/admin/subjects/add}" method="post">
