@@ -7,6 +7,88 @@
     <title>Calendar - Student</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link th:href="@{/css/styles.css}" rel="stylesheet">
+    <style>
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .calendar-header {
+            padding: 0.75rem;
+            text-align: center;
+            font-weight: 600;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        .calendar-day {
+            min-height: 80px;
+            padding: 0.5rem;
+            border-radius: 8px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            transition: all 0.2s;
+        }
+
+        .calendar-day:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .calendar-day.empty {
+            opacity: 0.3;
+            pointer-events: none;
+        }
+
+        .day-number {
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .subject-entry {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            font-size: 0.7rem;
+            padding: 0.15rem 0.3rem;
+            border-radius: 3px;
+            margin-bottom: 0.15rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .subject-entry.present {
+            background: rgba(0, 255, 136, 0.2);
+            color: #00ff88;
+        }
+
+        .subject-entry.absent {
+            background: rgba(255, 59, 92, 0.2);
+            color: #ff3b5c;
+        }
+
+        .subject-entry.late {
+            background: rgba(255, 170, 0, 0.2);
+            color: #ffaa00;
+        }
+
+        .status-icon {
+            font-size: 0.65rem;
+        }
+
+        .subject-name {
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .weekend {
+            background: rgba(128, 128, 128, 0.1);
+        }
+    </style>
 </head>
 
 <body>
@@ -42,29 +124,37 @@
                     Month Year</h3>
 
                 <!-- Legend -->
-                <div class="flex mb-3" style="gap: 1.5rem;">
+                <div class="flex mb-3" style="gap: 1.5rem; flex-wrap: wrap;">
                     <div class="flex" style="align-items: center; gap: 0.5rem;">
                         <div
-                            style="width: 20px; height: 20px; background: rgba(0, 255, 136, 0.2); border: 1px solid var(--success); border-radius: 4px;">
+                            style="width: 16px; height: 16px; background: rgba(0, 255, 136, 0.2); border: 1px solid #00ff88; border-radius: 3px;">
                         </div>
-                        <span>Present</span>
+                        <span style="font-size: 0.85rem;">Present</span>
                     </div>
                     <div class="flex" style="align-items: center; gap: 0.5rem;">
                         <div
-                            style="width: 20px; height: 20px; background: rgba(255, 59, 92, 0.2); border: 1px solid var(--danger); border-radius: 4px;">
+                            style="width: 16px; height: 16px; background: rgba(255, 59, 92, 0.2); border: 1px solid #ff3b5c; border-radius: 3px;">
                         </div>
-                        <span>Absent</span>
+                        <span style="font-size: 0.85rem;">Absent</span>
                     </div>
                     <div class="flex" style="align-items: center; gap: 0.5rem;">
                         <div
-                            style="width: 20px; height: 20px; background: rgba(255, 170, 0, 0.2); border: 1px solid var(--warning); border-radius: 4px;">
+                            style="width: 16px; height: 16px; background: rgba(255, 170, 0, 0.2); border: 1px solid #ffaa00; border-radius: 3px;">
                         </div>
-                        <span>Late</span>
+                        <span style="font-size: 0.85rem;">Late</span>
                     </div>
                 </div>
 
+                <!-- Subjects Legend -->
+                <div class="mb-3" th:if="${subjects != null and !#lists.isEmpty(subjects)}">
+                    <span style="font-size: 0.85rem; color: var(--text-muted);">Subjects: </span>
+                    <span th:each="subj, iter : ${subjects}" style="font-size: 0.85rem;">
+                        <strong th:text="${subj}"></strong><span th:unless="${iter.last}">, </span>
+                    </span>
+                </div>
+
                 <!-- Calendar Grid -->
-                <div class="calendar">
+                <div class="calendar-grid">
                     <!-- Headers -->
                     <div class="calendar-header">Mon</div>
                     <div class="calendar-header">Tue</div>
@@ -76,17 +166,33 @@
 
                     <!-- Empty cells before first day -->
                     <th:block th:if="${firstDayOfWeek != null and firstDayOfWeek > 1}">
-                        <div th:each="i : ${#numbers.sequence(1, firstDayOfWeek - 1)}" class="calendar-day"
-                            style="opacity: 0.3;"></div>
+                        <div th:each="i : ${#numbers.sequence(1, firstDayOfWeek - 1)}" class="calendar-day empty"></div>
                     </th:block>
 
                     <!-- Days of month -->
                     <th:block th:if="${daysInMonth != null and daysInMonth > 0}">
                         <div th:each="day : ${#numbers.sequence(1, daysInMonth)}" class="calendar-day"
-                            th:classappend="${calendarData != null and calendarData.containsKey(day)} ? (${calendarData.get(day) == 'PRESENT'} ? 'present' : (${calendarData.get(day) == 'ABSENT'} ? 'absent' : 'late')) : ''"
-                            th:text="${day}">
+                            th:classappend="${((firstDayOfWeek - 1 + day) % 7 == 6) or ((firstDayOfWeek - 1 + day) % 7 == 0)} ? 'weekend' : ''">
+
+                            <div class="day-number" th:text="${day}">1</div>
+
+                            <!-- Subject-wise attendance for this day -->
+                            <th:block th:if="${calendarData != null and calendarData.containsKey(day)}">
+                                <div th:each="entry : ${calendarData.get(day)}" class="subject-entry"
+                                    th:classappend="${entry.value == 'PRESENT'} ? 'present' : (${entry.value == 'ABSENT'} ? 'absent' : 'late')">
+                                    <span class="status-icon"
+                                        th:text="${entry.value == 'PRESENT'} ? '✓' : (${entry.value == 'ABSENT'} ? '✗' : '⏰')"></span>
+                                    <span class="subject-name" th:text="${#strings.abbreviate(entry.key, 10)}"></span>
+                                </div>
+                            </th:block>
                         </div>
                     </th:block>
+                </div>
+
+                <!-- Info Note -->
+                <div class="mt-3" style="font-size: 0.85rem; color: var(--text-muted);">
+                    <strong>Note:</strong> Each day shows attendance for all subjects. A student can be present in one
+                    subject and absent in another on the same day.
                 </div>
             </div>
         </main>

@@ -9,6 +9,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/student")
@@ -100,18 +101,34 @@ public class StudentController {
         List<Attendance> monthlyAttendance = attendanceRepository.findByStudentAndDateBetween(student, startOfMonth,
                 endOfMonth);
 
-        // Create calendar data
-        Map<Integer, String> calendarData = new HashMap<>();
+        // Create calendar data with subject-wise attendance
+        // Map<Day, Map<SubjectName, Status>>
+        Map<Integer, Map<String, String>> calendarData = new LinkedHashMap<>();
+
         for (Attendance att : monthlyAttendance) {
             int day = att.getDate().getDayOfMonth();
+            String subjectName = att.getSubject().getName();
             String status = att.getStatus().name();
-            calendarData.put(day, status);
+
+            calendarData.computeIfAbsent(day, k -> new LinkedHashMap<>());
+            calendarData.get(day).put(subjectName, status);
         }
+
+        // Get all unique subjects for the student's section
+        List<TeacherSubject> assignments = teacherSubjectRepository.findAll().stream()
+                .filter(ts -> ts.getSection().getId().equals(student.getSection().getId()))
+                .collect(Collectors.toList());
+
+        List<String> subjects = assignments.stream()
+                .map(ts -> ts.getSubject().getName())
+                .distinct()
+                .collect(Collectors.toList());
 
         model.addAttribute("studentName", student.getName());
         model.addAttribute("currentMonth", now.getMonth().toString());
         model.addAttribute("currentYear", now.getYear());
         model.addAttribute("calendarData", calendarData);
+        model.addAttribute("subjects", subjects);
         model.addAttribute("daysInMonth", now.lengthOfMonth());
         model.addAttribute("firstDayOfWeek", startOfMonth.getDayOfWeek().getValue());
 
