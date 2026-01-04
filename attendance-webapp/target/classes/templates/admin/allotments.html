@@ -40,6 +40,10 @@
                 </div>
             </div>
 
+            <!-- Alert Messages -->
+            <div th:if="${success}" class="alert alert-success" role="alert" th:text="${success}"></div>
+            <div th:if="${error}" class="alert alert-danger" role="alert" th:text="${error}"></div>
+
             <div class="card mb-4">
                 <h3 class="mb-3">Assign Teacher to Subject</h3>
                 <form th:action="@{/admin/allotments/add}" method="post" class="grid grid-4">
@@ -80,6 +84,7 @@
                                 <th>Teacher</th>
                                 <th>Subject</th>
                                 <th>Section</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -88,6 +93,13 @@
                                 <td th:text="${allot.teacher != null ? allot.teacher.name : 'N/A'}"></td>
                                 <td th:text="${allot.subject != null ? allot.subject.name : 'N/A'}"></td>
                                 <td th:text="${allot.section != null ? allot.section.name : 'N/A'}"></td>
+                                <td>
+                                    <form th:action="@{'/admin/allotments/delete/' + ${allot.id}}" method="post"
+                                        style="display:inline;">
+                                        <button type="submit" class="btn btn-danger btn-sm"
+                                            onclick="return confirm('Delete this allotment?')">Delete</button>
+                                    </form>
+                                </td>
                             </tr>
                         </tbody>
                     </table>

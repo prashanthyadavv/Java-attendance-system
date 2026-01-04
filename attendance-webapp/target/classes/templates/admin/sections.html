@@ -40,6 +40,10 @@
                 </div>
             </div>
 
+            <!-- Alert Messages -->
+            <div th:if="${success}" class="alert alert-success" role="alert" th:text="${success}"></div>
+            <div th:if="${error}" class="alert alert-danger" role="alert" th:text="${error}"></div>
+
             <div class="card mb-4">
                 <h3 class="mb-3">Add New Section</h3>
                 <form th:action="@{/admin/sections/add}" method="post" class="grid grid-4">
@@ -77,6 +81,7 @@
                                 <th>Course</th>
                                 <th>Semester</th>
                                 <th>Year</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -86,6 +91,13 @@
                                 <td th:text="${sec.course != null ? sec.course.name : 'N/A'}"></td>
                                 <td th:text="${sec.semester}"></td>
                                 <td th:text="${sec.year}"></td>
+                                <td>
+                                    <form th:action="@{'/admin/sections/delete/' + ${sec.id}}" method="post"
+                                        style="display:inline;">
+                                        <button type="submit" class="btn btn-danger btn-sm"
+                                            onclick="return confirm('Delete this section?')">Delete</button>
+                                    </form>
+                                </td>
                             </tr>
                         </tbody>
                     </table>

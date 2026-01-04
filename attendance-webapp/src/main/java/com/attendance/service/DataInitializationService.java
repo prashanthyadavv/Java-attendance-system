@@ -9,7 +9,9 @@ import java.time.LocalDate;
 import java.util.Random;
 
 /**
- * Service to initialize sample data when the database is empty
+ * Service to initialize sample data for Joginpally B.R. Engineering College
+ * (JBREC)
+ * Website: https://jbrec.edu.in
  */
 @Service
 public class DataInitializationService {
@@ -54,62 +56,90 @@ public class DataInitializationService {
             return; // Data already exists
         }
 
-        System.out.println("Initializing sample data...");
+        System.out.println("Initializing JBREC data...");
 
         // Create Admin User
-        User adminUser = new User("admin", passwordEncoder.encode("admin123"), Role.ADMIN, "admin@university.edu");
+        User adminUser = new User("admin", passwordEncoder.encode("cybrito"), Role.ADMIN, "admin@jbrec.edu.in");
         userRepository.save(adminUser);
 
-        // Create Departments
-        Department csDept = departmentRepository
-                .save(new Department("Computer Science", "CS", "Computer Science and Engineering"));
-        Department eceDept = departmentRepository
-                .save(new Department("Electronics", "ECE", "Electronics and Communication"));
+        // Create Department - Data Science
+        Department dsDept = departmentRepository
+                .save(new Department("Data Science", "DS", "Department of Data Science"));
 
-        // Create Courses
-        Course bcaCourse = courseRepository.save(new Course(csDept, "BCA", "BCA", 3));
-        Course mcaCourse = courseRepository.save(new Course(csDept, "MCA", "MCA", 2));
+        // Create Course - B.Tech Data Science (4 years)
+        Course btechDS = courseRepository.save(new Course(dsDept, "B.Tech", "BTECH-DS", 4));
 
-        // Create Subjects
-        Subject java = subjectRepository.save(new Subject(bcaCourse, "Java Programming", "CS101", 3, 4));
-        Subject python = subjectRepository.save(new Subject(bcaCourse, "Python Programming", "CS102", 3, 4));
-        Subject webDev = subjectRepository.save(new Subject(bcaCourse, "Web Development", "CS103", 3, 3));
-        Subject dbms = subjectRepository.save(new Subject(bcaCourse, "Database Systems", "CS104", 3, 4));
+        // Create Subjects for Semester 4
+        Subject javaProg = subjectRepository.save(new Subject(btechDS, "Java Programming", "DS401", 4, 4));
+        Subject dataStructures = subjectRepository.save(new Subject(btechDS, "Data Structures", "DS402", 4, 4));
+        Subject dataVisualization = subjectRepository.save(new Subject(btechDS, "Data Visualization", "DS403", 4, 3));
 
-        // Create Sections
-        Section sectionA = sectionRepository.save(new Section(bcaCourse, "BCA-A", 3, 2024));
-        Section sectionB = sectionRepository.save(new Section(bcaCourse, "BCA-B", 3, 2024));
+        // Create Section - A (Semester 4, 2nd Year, Academic Year 2025-2026)
+        Section sectionA = sectionRepository.save(new Section(btechDS, "A", 4, 2025));
 
         // Create Teachers
-        User teacherUser1 = userRepository.save(new User("john.smith", passwordEncoder.encode("teacher123"),
-                Role.TEACHER, "john.smith@university.edu"));
-        Teacher teacher1 = teacherRepository.save(new Teacher(teacherUser1, "John Smith", csDept));
+        // Teacher 1 - Mrs Susmitha (Java Programming)
+        User teacherUser1 = userRepository.save(new User("susmitha", passwordEncoder.encode("susmitha"),
+                Role.TEACHER, "susmitha@jbrec.edu.in"));
+        Teacher teacher1 = teacherRepository.save(new Teacher(teacherUser1, "Mrs Susmitha", dsDept));
 
-        User teacherUser2 = userRepository.save(new User("sarah.jones", passwordEncoder.encode("teacher123"),
-                Role.TEACHER, "sarah.jones@university.edu"));
-        Teacher teacher2 = teacherRepository.save(new Teacher(teacherUser2, "Sarah Jones", csDept));
+        // Teacher 2 - Mrs Gayatri (Data Structures)
+        User teacherUser2 = userRepository.save(new User("gayatri", passwordEncoder.encode("gayatri"),
+                Role.TEACHER, "gayatri@jbrec.edu.in"));
+        Teacher teacher2 = teacherRepository.save(new Teacher(teacherUser2, "Mrs Gayatri", dsDept));
+
+        // Teacher 3 - Ms Satya Vaishnavi (Data Visualization)
+        User teacherUser3 = userRepository.save(new User("vaishnavi", passwordEncoder.encode("vaishnavi"),
+                Role.TEACHER, "vaishnavi@jbrec.edu.in"));
+        Teacher teacher3 = teacherRepository.save(new Teacher(teacherUser3, "Ms Satya Vaishnavi", dsDept));
 
         // Assign Teachers to Subjects
-        teacherSubjectRepository.save(new TeacherSubject(teacher1, java, sectionA));
-        teacherSubjectRepository.save(new TeacherSubject(teacher1, python, sectionA));
-        teacherSubjectRepository.save(new TeacherSubject(teacher2, webDev, sectionA));
-        teacherSubjectRepository.save(new TeacherSubject(teacher2, dbms, sectionA));
+        teacherSubjectRepository.save(new TeacherSubject(teacher1, javaProg, sectionA));
+        teacherSubjectRepository.save(new TeacherSubject(teacher2, dataStructures, sectionA));
+        teacherSubjectRepository.save(new TeacherSubject(teacher3, dataVisualization, sectionA));
 
         // Create Students
-        String[] studentNames = { "Alice Johnson", "Bob Williams", "Charlie Brown", "Diana Davis", "Ethan Miller" };
-        for (int i = 0; i < studentNames.length; i++) {
-            String username = studentNames[i].toLowerCase().replace(" ", ".");
-            User studentUser = userRepository.save(new User(username, passwordEncoder.encode("student123"),
-                    Role.STUDENT, username + "@university.edu"));
-            Student student = studentRepository.save(
-                    new Student(studentUser, sectionA, "BCA2024" + String.format("%03d", i + 1), studentNames[i]));
+        // Student 1 - Prashanth Yadav Pittakala
+        User studentUser1 = userRepository.save(new User("24j21a6741", passwordEncoder.encode("24j21a6741"),
+                Role.STUDENT, "24j21a6741@jbrec.edu.in"));
+        Student student1 = studentRepository
+                .save(new Student(studentUser1, sectionA, "24J21A6741", "Prashanth Yadav Pittakala"));
 
-            // Generate sample attendance for each student
-            generateSampleAttendance(student, java, teacher1);
-            generateSampleAttendance(student, python, teacher1);
+        // Student 2 - B. Adi Keshav Reddy
+        User studentUser2 = userRepository.save(new User("24j21a6708", passwordEncoder.encode("24j21a6708"),
+                Role.STUDENT, "24j21a6708@jbrec.edu.in"));
+        Student student2 = studentRepository
+                .save(new Student(studentUser2, sectionA, "24J21A6708", "B. Adi Keshav Reddy"));
+
+        // Student 3 - Jeshwanth Baikani
+        User studentUser3 = userRepository.save(new User("24j21a6705", passwordEncoder.encode("24j21a6705"),
+                Role.STUDENT, "24j21a6705@jbrec.edu.in"));
+        Student student3 = studentRepository
+                .save(new Student(studentUser3, sectionA, "24J21A6705", "Jeshwanth Baikani"));
+
+        // Student 4 - Dhana Lakshmi Bandari
+        User studentUser4 = userRepository.save(new User("24j21a6713", passwordEncoder.encode("24j21a6713"),
+                Role.STUDENT, "24j21a6713@jbrec.edu.in"));
+        Student student4 = studentRepository
+                .save(new Student(studentUser4, sectionA, "24J21A6713", "Dhana Lakshmi Bandari"));
+
+        // Student 5 - Srilatha Vemala
+        User studentUser5 = userRepository.save(new User("24j21a6754", passwordEncoder.encode("24j21a6754"),
+                Role.STUDENT, "24j21a6754@jbrec.edu.in"));
+        Student student5 = studentRepository.save(new Student(studentUser5, sectionA, "24J21A6754", "Srilatha Vemala"));
+
+        // Generate sample attendance for students
+        Student[] students = { student1, student2, student3, student4, student5 };
+        Subject[] subjects = { javaProg, dataStructures, dataVisualization };
+        Teacher[] teachers = { teacher1, teacher2, teacher3 };
+
+        for (int i = 0; i < subjects.length; i++) {
+            for (Student student : students) {
+                generateSampleAttendance(student, subjects[i], teachers[i]);
+            }
         }
 
-        System.out.println("Sample data initialized successfully!");
+        System.out.println("JBREC data initialized successfully!");
     }
 
     private void generateSampleAttendance(Student student, Subject subject, Teacher teacher) {
