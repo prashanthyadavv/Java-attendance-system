@@ -154,18 +154,39 @@ public class TeacherController {
             return "redirect:/login";
         }
 
+        // Validate date - prevent future dates
+        if (date.isAfter(LocalDate.now())) {
+            return "redirect:/teacher/mark-attendance?error=future";
+        }
+
         User markedBy = teacher.getUser();
-        Subject subject = new Subject();
-        subject.setId(subjectId);
+        Subject subject = subjectRepository.findById(subjectId).orElse(null);
+        if (subject == null) {
+            return "redirect:/teacher/mark-attendance?error=invalid";
+        }
 
         for (int i = 0; i < studentIds.size(); i++) {
-            Student student = new Student();
-            student.setId(studentIds.get(i));
+            Student student = studentRepository.findById(studentIds.get(i)).orElse(null);
+            if (student == null)
+                continue;
 
             AttendanceStatus status = AttendanceStatus.valueOf(statuses.get(i));
-            Attendance attendance = new Attendance(student, subject, date, 1, status, markedBy,
-                    status == AttendanceStatus.LATE);
-            attendanceRepository.save(attendance);
+
+            // Check for existing attendance and update instead of creating duplicate
+            List<Attendance> existing = attendanceRepository.findByStudentAndSubjectAndDate(student, subject, date);
+            if (!existing.isEmpty()) {
+                // Update existing
+                Attendance att = existing.get(0);
+                att.setStatus(status);
+                att.setMarkedBy(markedBy);
+                att.setLateEntry(status == AttendanceStatus.LATE);
+                attendanceRepository.save(att);
+            } else {
+                // Create new
+                Attendance attendance = new Attendance(student, subject, date, 1, status, markedBy,
+                        status == AttendanceStatus.LATE);
+                attendanceRepository.save(attendance);
+            }
         }
 
         return "redirect:/teacher/dashboard?success=true";
