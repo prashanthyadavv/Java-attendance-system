@@ -88,6 +88,43 @@
         .weekend {
             background: rgba(128, 128, 128, 0.1);
         }
+
+        .month-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .month-nav-buttons {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .month-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            min-width: 200px;
+            text-align: center;
+        }
+
+        .month-selector {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .month-selector select {
+            padding: 0.5rem;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            background: var(--card-bg);
+            color: var(--text);
+            font-size: 0.9rem;
+        }
     </style>
 </head>
 
@@ -119,9 +156,32 @@
             </div>
 
             <div class="card">
-                <h3 class="mb-3"
-                    th:text="${(currentMonth != null ? currentMonth : 'Month') + ' ' + (currentYear != null ? currentYear : '')}">
-                    Month Year</h3>
+                <!-- Month/Year Navigation -->
+                <div class="month-nav">
+                    <div class="month-nav-buttons">
+                        <a th:href="@{/student/calendar(month=${prevMonth}, year=${prevYear})}"
+                            class="btn btn-outline btn-sm">← Previous</a>
+                        <span class="month-title" th:text="${currentMonth + ' ' + currentYear}">Month Year</span>
+                        <a th:href="@{/student/calendar(month=${nextMonth}, year=${nextYear})}"
+                            class="btn btn-outline btn-sm">Next →</a>
+                    </div>
+
+                    <!-- Month/Year Selector -->
+                    <div class="month-selector">
+                        <form th:action="@{/student/calendar}" method="get"
+                            style="display: flex; gap: 0.5rem; align-items: center;">
+                            <select name="month" onchange="this.form.submit()">
+                                <option th:each="m : ${months}" th:value="${m.value}" th:text="${m.name}"
+                                    th:selected="${m.value == selectedMonth}"></option>
+                            </select>
+                            <select name="year" onchange="this.form.submit()">
+                                <option th:each="y : ${years}" th:value="${y}" th:text="${y}"
+                                    th:selected="${y == selectedYear}"></option>
+                            </select>
+                            <button type="submit" class="btn btn-primary btn-sm">Go</button>
+                        </form>
+                    </div>
+                </div>
 
                 <!-- Legend -->
                 <div class="flex mb-3" style="gap: 1.5rem; flex-wrap: wrap;">

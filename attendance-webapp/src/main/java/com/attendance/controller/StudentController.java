@@ -8,6 +8,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -87,16 +88,25 @@ public class StudentController {
     }
 
     @GetMapping("/calendar")
-    public String calendar(@AuthenticationPrincipal UserDetails userDetails, Model model) {
+    public String calendar(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @RequestParam(required = false) Integer month,
+            @RequestParam(required = false) Integer year,
+            Model model) {
+
         Student student = getCurrentStudent(userDetails);
         if (student == null) {
             return "redirect:/login";
         }
 
-        // Get attendance for current month
+        // Use provided month/year or default to current
         LocalDate now = LocalDate.now();
-        LocalDate startOfMonth = now.withDayOfMonth(1);
-        LocalDate endOfMonth = now.withDayOfMonth(now.lengthOfMonth());
+        int selectedMonth = (month != null && month >= 1 && month <= 12) ? month : now.getMonthValue();
+        int selectedYear = (year != null && year >= 2020 && year <= 2030) ? year : now.getYear();
+
+        YearMonth yearMonth = YearMonth.of(selectedYear, selectedMonth);
+        LocalDate startOfMonth = yearMonth.atDay(1);
+        LocalDate endOfMonth = yearMonth.atEndOfMonth();
 
         List<Attendance> monthlyAttendance = attendanceRepository.findByStudentAndDateBetween(student, startOfMonth,
                 endOfMonth);
@@ -124,14 +134,52 @@ public class StudentController {
                 .distinct()
                 .collect(Collectors.toList());
 
+        // Calculate previous and next month for navigation
+        YearMonth prevMonth = yearMonth.minusMonths(1);
+        YearMonth nextMonth = yearMonth.plusMonths(1);
+
         model.addAttribute("studentName", student.getName());
-        model.addAttribute("currentMonth", now.getMonth().toString());
-        model.addAttribute("currentYear", now.getYear());
+        model.addAttribute("currentMonth", yearMonth.getMonth().toString());
+        model.addAttribute("currentYear", selectedYear);
+        model.addAttribute("selectedMonth", selectedMonth);
+        model.addAttribute("selectedYear", selectedYear);
         model.addAttribute("calendarData", calendarData);
         model.addAttribute("subjects", subjects);
-        model.addAttribute("daysInMonth", now.lengthOfMonth());
+        model.addAttribute("daysInMonth", yearMonth.lengthOfMonth());
         model.addAttribute("firstDayOfWeek", startOfMonth.getDayOfWeek().getValue());
 
+        // Navigation
+        model.addAttribute("prevMonth", prevMonth.getMonthValue());
+        model.addAttribute("prevYear", prevMonth.getYear());
+        model.addAttribute("nextMonth", nextMonth.getMonthValue());
+        model.addAttribute("nextYear", nextMonth.getYear());
+
+        // For dropdown
+        model.addAttribute("months", getMonthsList());
+        model.addAttribute("years", getYearsList());
+
         return "student/calendar";
+    }
+
+    private List<Map<String, Object>> getMonthsList() {
+        List<Map<String, Object>> months = new ArrayList<>();
+        String[] monthNames = { "January", "February", "March", "April", "May", "June",
+                "July", "August", "September", "October", "November", "December" };
+        for (int i = 1; i <= 12; i++) {
+            Map<String, Object> m = new HashMap<>();
+            m.put("value", i);
+            m.put("name", monthNames[i - 1]);
+            months.add(m);
+        }
+        return months;
+    }
+
+    private List<Integer> getYearsList() {
+        List<Integer> years = new ArrayList<>();
+        int currentYear = LocalDate.now().getYear();
+        for (int y = currentYear - 2; y <= currentYear + 1; y++) {
+            years.add(y);
+        }
+        return years;
     }
 }
