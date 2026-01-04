@@ -11,54 +11,51 @@
         .calendar-grid {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
-            gap: 0.5rem;
-            margin-top: 1rem;
+            gap: 3px;
+            margin-top: 0.5rem;
         }
 
         .calendar-header {
-            padding: 0.75rem;
+            padding: 0.4rem;
             text-align: center;
             font-weight: 600;
             color: var(--text-muted);
-            font-size: 0.85rem;
+            font-size: 0.75rem;
         }
 
         .calendar-day {
-            min-height: 80px;
-            padding: 0.5rem;
-            border-radius: 8px;
+            min-height: 50px;
+            padding: 0.3rem;
+            border-radius: 6px;
             background: var(--card-bg);
             border: 1px solid var(--border-color);
-            transition: all 0.2s;
+            font-size: 0.75rem;
         }
 
         .calendar-day:hover {
             border-color: var(--primary);
-            transform: translateY(-2px);
         }
 
         .calendar-day.empty {
             opacity: 0.3;
-            pointer-events: none;
         }
 
         .day-number {
             font-weight: 600;
-            font-size: 0.9rem;
-            margin-bottom: 0.25rem;
+            font-size: 0.8rem;
+            margin-bottom: 0.15rem;
         }
 
         .subject-entry {
             display: flex;
             align-items: center;
-            gap: 0.25rem;
-            font-size: 0.7rem;
-            padding: 0.15rem 0.3rem;
-            border-radius: 3px;
-            margin-bottom: 0.15rem;
+            gap: 2px;
+            font-size: 0.6rem;
+            padding: 1px 3px;
+            border-radius: 2px;
+            margin-bottom: 1px;
             white-space: nowrap;
             overflow: hidden;
-            text-overflow: ellipsis;
         }
 
         .subject-entry.present {
@@ -76,54 +73,65 @@
             color: #ffaa00;
         }
 
-        .status-icon {
-            font-size: 0.65rem;
-        }
-
-        .subject-name {
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
         .weekend {
-            background: rgba(128, 128, 128, 0.1);
+            background: rgba(128, 128, 128, 0.05);
         }
 
         .month-nav {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
+            gap: 0.5rem;
+            margin-bottom: 0.75rem;
             flex-wrap: wrap;
         }
 
         .month-nav-buttons {
             display: flex;
             align-items: center;
-            gap: 1rem;
+            gap: 0.5rem;
         }
 
         .month-title {
-            font-size: 1.5rem;
+            font-size: 1.1rem;
             font-weight: 600;
-            min-width: 200px;
+            min-width: 150px;
             text-align: center;
         }
 
-        .month-selector {
-            display: flex;
-            gap: 0.5rem;
-            align-items: center;
-        }
-
         .month-selector select {
-            padding: 0.5rem;
-            border-radius: 6px;
+            padding: 0.3rem;
+            border-radius: 4px;
             border: 1px solid var(--border-color);
             background: var(--card-bg);
             color: var(--text);
-            font-size: 0.9rem;
+            font-size: 0.8rem;
+        }
+
+        .compact-card {
+            padding: 1rem !important;
+        }
+
+        .compact-table th,
+        .compact-table td {
+            padding: 0.4rem 0.5rem !important;
+            font-size: 0.8rem;
+        }
+
+        .stat-mini {
+            padding: 0.5rem;
+            border-radius: 6px;
+            text-align: center;
+        }
+
+        .stat-mini .value {
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+
+        .stat-mini .label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
         }
     </style>
 </head>
@@ -146,68 +154,46 @@
             </div>
         </aside>
 
-        <main class="main-content">
-            <div class="page-header">
-                <h1>📅 Attendance Calendar</h1>
-                <div class="user-menu">
-                    <button id="themeToggle" onclick="toggleTheme()" class="btn btn-outline btn-sm"
-                        title="Toggle Theme">☀️</button>
-                </div>
+        <main class="main-content" style="padding: 1rem;">
+            <div class="page-header" style="margin-bottom: 0.75rem;">
+                <h1 style="font-size: 1.3rem;">📅 Attendance Calendar</h1>
+                <button id="themeToggle" onclick="toggleTheme()" class="btn btn-outline btn-sm"
+                    title="Toggle Theme">☀️</button>
             </div>
 
-            <div class="card">
+            <div class="card compact-card">
                 <!-- Month/Year Navigation -->
                 <div class="month-nav">
                     <div class="month-nav-buttons">
                         <a th:href="@{/student/calendar(month=${prevMonth}, year=${prevYear})}"
-                            class="btn btn-outline btn-sm">← Previous</a>
+                            class="btn btn-outline btn-sm" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">←
+                            Prev</a>
                         <span class="month-title" th:text="${currentMonth + ' ' + currentYear}">Month Year</span>
                         <a th:href="@{/student/calendar(month=${nextMonth}, year=${nextYear})}"
-                            class="btn btn-outline btn-sm">Next →</a>
+                            class="btn btn-outline btn-sm" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">Next
+                            →</a>
                     </div>
-
-                    <!-- Month/Year Selector -->
-                    <div class="month-selector">
-                        <form th:action="@{/student/calendar}" method="get"
-                            style="display: flex; gap: 0.5rem; align-items: center;">
-                            <select name="month" onchange="this.form.submit()">
-                                <option th:each="m : ${months}" th:value="${m.value}" th:text="${m.name}"
-                                    th:selected="${m.value == selectedMonth}"></option>
-                            </select>
-                            <select name="year" onchange="this.form.submit()">
-                                <option th:each="y : ${years}" th:value="${y}" th:text="${y}"
-                                    th:selected="${y == selectedYear}"></option>
-                            </select>
-                            <button type="submit" class="btn btn-primary btn-sm">Go</button>
-                        </form>
-                    </div>
+                    <form th:action="@{/student/calendar}" method="get" style="display: flex; gap: 0.3rem;">
+                        <select name="month" onchange="this.form.submit()">
+                            <option th:each="m : ${months}" th:value="${m.value}" th:text="${m.name}"
+                                th:selected="${m.value == selectedMonth}"></option>
+                        </select>
+                        <select name="year" onchange="this.form.submit()">
+                            <option th:each="y : ${years}" th:value="${y}" th:text="${y}"
+                                th:selected="${y == selectedYear}"></option>
+                        </select>
+                    </form>
                 </div>
 
                 <!-- Legend -->
-                <div class="flex mb-3" style="gap: 1.5rem; flex-wrap: wrap;">
-                    <div class="flex" style="align-items: center; gap: 0.5rem;">
-                        <div
-                            style="width: 16px; height: 16px; background: rgba(0, 255, 136, 0.2); border: 1px solid #00ff88; border-radius: 3px;">
-                        </div>
-                        <span style="font-size: 0.85rem;">Present</span>
-                    </div>
-                    <div class="flex" style="align-items: center; gap: 0.5rem;">
-                        <div
-                            style="width: 16px; height: 16px; background: rgba(255, 59, 92, 0.2); border: 1px solid #ff3b5c; border-radius: 3px;">
-                        </div>
-                        <span style="font-size: 0.85rem;">Absent</span>
-                    </div>
-                    <div class="flex" style="align-items: center; gap: 0.5rem;">
-                        <div
-                            style="width: 16px; height: 16px; background: rgba(255, 170, 0, 0.2); border: 1px solid #ffaa00; border-radius: 3px;">
-                        </div>
-                        <span style="font-size: 0.85rem;">Late</span>
-                    </div>
+                <div style="display: flex; gap: 1rem; margin-bottom: 0.5rem; font-size: 0.75rem;">
+                    <span>✓ Present</span>
+                    <span>✗ Absent</span>
+                    <span>⏰ Late</span>
                 </div>
 
                 <!-- Calendar Grid -->
                 <div class="calendar-grid">
-                    <!-- Headers -->
                     <div class="calendar-header">Mon</div>
                     <div class="calendar-header">Tue</div>
                     <div class="calendar-header">Wed</div>
@@ -216,25 +202,20 @@
                     <div class="calendar-header">Sat</div>
                     <div class="calendar-header">Sun</div>
 
-                    <!-- Empty cells before first day -->
                     <th:block th:if="${firstDayOfWeek != null and firstDayOfWeek > 1}">
                         <div th:each="i : ${#numbers.sequence(1, firstDayOfWeek - 1)}" class="calendar-day empty"></div>
                     </th:block>
 
-                    <!-- Days of month -->
                     <th:block th:if="${daysInMonth != null and daysInMonth > 0}">
                         <div th:each="day : ${#numbers.sequence(1, daysInMonth)}" class="calendar-day"
                             th:classappend="${((firstDayOfWeek - 1 + day) % 7 == 6) or ((firstDayOfWeek - 1 + day) % 7 == 0)} ? 'weekend' : ''">
-
                             <div class="day-number" th:text="${day}">1</div>
-
-                            <!-- Subject-wise attendance for this day -->
                             <th:block th:if="${calendarData != null and calendarData.containsKey(day)}">
                                 <div th:each="entry : ${calendarData.get(day)}" class="subject-entry"
                                     th:classappend="${entry.value == 'PRESENT'} ? 'present' : (${entry.value == 'ABSENT'} ? 'absent' : 'late')">
-                                    <span class="status-icon"
+                                    <span
                                         th:text="${entry.value == 'PRESENT'} ? '✓' : (${entry.value == 'ABSENT'} ? '✗' : '⏰')"></span>
-                                    <span class="subject-name" th:text="${#strings.abbreviate(entry.key, 10)}"></span>
+                                    <span th:text="${#strings.abbreviate(entry.key, 8)}"></span>
                                 </div>
                             </th:block>
                         </div>
@@ -242,71 +223,55 @@
                 </div>
             </div>
 
-            <!-- Detailed Attendance List -->
-            <div class="card mt-4">
-                <h3 class="mb-3">📋 Detailed Attendance Records - <span
-                        th:text="${currentMonth + ' ' + currentYear}">Month Year</span></h3>
+            <!-- Monthly Summary -->
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem; margin: 0.75rem 0;">
+                <div class="stat-mini" style="background: rgba(0, 255, 136, 0.1);">
+                    <div class="value" style="color: #00ff88;" th:text="${monthlyPresent}">0</div>
+                    <div class="label">Present</div>
+                </div>
+                <div class="stat-mini" style="background: rgba(255, 59, 92, 0.1);">
+                    <div class="value" style="color: #ff3b5c;" th:text="${monthlyAbsent}">0</div>
+                    <div class="label">Absent</div>
+                </div>
+                <div class="stat-mini" style="background: rgba(255, 170, 0, 0.1);">
+                    <div class="value" style="color: #ffaa00;" th:text="${monthlyLate}">0</div>
+                    <div class="label">Late</div>
+                </div>
+                <div class="stat-mini" style="background: rgba(102, 126, 234, 0.1);">
+                    <div class="value" style="color: #667eea;" th:text="${monthlyTotal}">0</div>
+                    <div class="label">Total</div>
+                </div>
+            </div>
 
-                <div class="table-container">
-                    <table>
-                        <thead>
+            <!-- Detailed Attendance List -->
+            <div class="card compact-card">
+                <h3 style="font-size: 1rem; margin-bottom: 0.5rem;">📋 Attendance Records</h3>
+                <div class="table-container" style="max-height: 250px; overflow-y: auto;">
+                    <table class="compact-table">
+                        <thead style="position: sticky; top: 0; background: var(--card-bg);">
                             <tr>
                                 <th>Date</th>
                                 <th>Day</th>
                                 <th>Subject</th>
-                                <th>Period</th>
                                 <th>Status</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <th:block th:each="record : ${attendanceList}">
-                                <tr>
-                                    <td th:text="${#temporals.format(record.date, 'dd MMM yyyy')}"></td>
-                                    <td th:text="${#temporals.dayOfWeekName(record.date)}"></td>
-                                    <td th:text="${record.subject.name}"></td>
-                                    <td th:text="${record.period}"></td>
-                                    <td>
-                                        <span class="badge"
-                                            th:classappend="${record.status.name() == 'PRESENT'} ? 'badge-success' : (${record.status.name() == 'ABSENT'} ? 'badge-danger' : 'badge-warning')"
-                                            th:text="${record.status}">
-                                        </span>
-                                    </td>
-                                </tr>
-                            </th:block>
+                            <tr th:each="record : ${attendanceList}">
+                                <td th:text="${#temporals.format(record.date, 'dd MMM')}"></td>
+                                <td th:text="${#strings.abbreviate(#temporals.dayOfWeekName(record.date), 3)}"></td>
+                                <td th:text="${#strings.abbreviate(record.subject.name, 12)}"></td>
+                                <td>
+                                    <span class="badge" style="font-size: 0.7rem; padding: 0.15rem 0.4rem;"
+                                        th:classappend="${record.status.name() == 'PRESENT'} ? 'badge-success' : (${record.status.name() == 'ABSENT'} ? 'badge-danger' : 'badge-warning')"
+                                        th:text="${record.status}"></span>
+                                </td>
+                            </tr>
                             <tr th:if="${attendanceList == null or #lists.isEmpty(attendanceList)}">
-                                <td colspan="5" class="text-center text-muted">No attendance records for this month</td>
+                                <td colspan="4" class="text-center text-muted">No records for this month</td>
                             </tr>
                         </tbody>
                     </table>
-                </div>
-
-                <!-- Monthly Summary -->
-                <div class="mt-4"
-                    style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem;">
-                    <div
-                        style="padding: 1rem; background: rgba(0, 255, 136, 0.1); border-radius: 8px; text-align: center;">
-                        <div style="font-size: 1.5rem; font-weight: 700; color: #00ff88;" th:text="${monthlyPresent}">0
-                        </div>
-                        <div style="font-size: 0.85rem; color: var(--text-muted);">Present</div>
-                    </div>
-                    <div
-                        style="padding: 1rem; background: rgba(255, 59, 92, 0.1); border-radius: 8px; text-align: center;">
-                        <div style="font-size: 1.5rem; font-weight: 700; color: #ff3b5c;" th:text="${monthlyAbsent}">0
-                        </div>
-                        <div style="font-size: 0.85rem; color: var(--text-muted);">Absent</div>
-                    </div>
-                    <div
-                        style="padding: 1rem; background: rgba(255, 170, 0, 0.1); border-radius: 8px; text-align: center;">
-                        <div style="font-size: 1.5rem; font-weight: 700; color: #ffaa00;" th:text="${monthlyLate}">0
-                        </div>
-                        <div style="font-size: 0.85rem; color: var(--text-muted);">Late</div>
-                    </div>
-                    <div
-                        style="padding: 1rem; background: rgba(102, 126, 234, 0.1); border-radius: 8px; text-align: center;">
-                        <div style="font-size: 1.5rem; font-weight: 700; color: #667eea;" th:text="${monthlyTotal}">0
-                        </div>
-                        <div style="font-size: 0.85rem; color: var(--text-muted);">Total Classes</div>
-                    </div>
                 </div>
             </div>
         </main>
