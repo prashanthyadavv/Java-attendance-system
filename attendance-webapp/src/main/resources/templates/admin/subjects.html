@@ -87,6 +87,7 @@
                                 <th>Course</th>
                                 <th>Semester</th>
                                 <th>Credits</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -97,6 +98,13 @@
                                 <td th:text="${subj.course != null ? subj.course.name : 'N/A'}"></td>
                                 <td th:text="${subj.semester}"></td>
                                 <td th:text="${subj.credits}"></td>
+                                <td>
+                                    <form th:action="@{'/admin/subjects/delete/' + ${subj.id}}" method="post"
+                                        style="display:inline;">
+                                        <button type="submit" class="btn btn-danger btn-sm"
+                                            onclick="return confirm('Delete this subject?')">Delete</button>
+                                    </form>
+                                </td>
                             </tr>
                         </tbody>
                     </table>

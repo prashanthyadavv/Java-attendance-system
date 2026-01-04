@@ -78,6 +78,7 @@
                                 <th>Code</th>
                                 <th>Department</th>
                                 <th>Duration</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -87,6 +88,13 @@
                                 <td><span class="badge badge-info" th:text="${course.code}"></span></td>
                                 <td th:text="${course.department != null ? course.department.name : 'N/A'}"></td>
                                 <td th:text="${course.durationYears + ' years'}"></td>
+                                <td>
+                                    <form th:action="@{'/admin/courses/delete/' + ${course.id}}" method="post"
+                                        style="display:inline;">
+                                        <button type="submit" class="btn btn-danger btn-sm"
+                                            onclick="return confirm('Delete this course?')">Delete</button>
+                                    </form>
+                                </td>
                             </tr>
                         </tbody>
                     </table>
