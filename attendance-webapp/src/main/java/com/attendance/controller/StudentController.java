@@ -111,6 +111,11 @@ public class StudentController {
         List<Attendance> monthlyAttendance = attendanceRepository.findByStudentAndDateBetween(student, startOfMonth,
                 endOfMonth);
 
+        // Sort by date descending for the list
+        List<Attendance> sortedAttendance = monthlyAttendance.stream()
+                .sorted((a, b) -> b.getDate().compareTo(a.getDate()))
+                .collect(Collectors.toList());
+
         // Create calendar data with subject-wise attendance
         // Map<Day, Map<SubjectName, Status>>
         Map<Integer, Map<String, String>> calendarData = new LinkedHashMap<>();
@@ -138,6 +143,15 @@ public class StudentController {
         YearMonth prevMonth = yearMonth.minusMonths(1);
         YearMonth nextMonth = yearMonth.plusMonths(1);
 
+        // Calculate monthly stats
+        long monthlyPresent = monthlyAttendance.stream()
+                .filter(a -> a.getStatus() == AttendanceStatus.PRESENT).count();
+        long monthlyAbsent = monthlyAttendance.stream()
+                .filter(a -> a.getStatus() == AttendanceStatus.ABSENT).count();
+        long monthlyLate = monthlyAttendance.stream()
+                .filter(a -> a.getStatus() == AttendanceStatus.LATE).count();
+        long monthlyTotal = monthlyAttendance.size();
+
         model.addAttribute("studentName", student.getName());
         model.addAttribute("currentMonth", yearMonth.getMonth().toString());
         model.addAttribute("currentYear", selectedYear);
@@ -157,6 +171,13 @@ public class StudentController {
         // For dropdown
         model.addAttribute("months", getMonthsList());
         model.addAttribute("years", getYearsList());
+
+        // Detailed list
+        model.addAttribute("attendanceList", sortedAttendance);
+        model.addAttribute("monthlyPresent", monthlyPresent);
+        model.addAttribute("monthlyAbsent", monthlyAbsent);
+        model.addAttribute("monthlyLate", monthlyLate);
+        model.addAttribute("monthlyTotal", monthlyTotal);
 
         return "student/calendar";
     }
