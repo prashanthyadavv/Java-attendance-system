@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Details - Teacher</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link th:href="@{/css/styles.css}" rel="stylesheet">
+</head>
+
+<body>
+    <div class="dashboard">
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <h2>🎓 Attendance</h2>
+                <p class="text-muted" style="font-size: 0.8rem;">Teacher Panel</p>
+            </div>
+            <ul class="sidebar-nav">
+                <li><a th:href="@{/teacher/dashboard}">📊 Dashboard</a></li>
+                <li><a th:href="@{/teacher/mark-attendance}">✓ Mark Attendance</a></li>
+                <li><a th:href="@{/teacher/reports}" class="active">📈 Reports</a></li>
+            </ul>
+            <div style="position: absolute; bottom: 2rem; left: 1rem; right: 1rem;">
+                <form th:action="@{/logout}" method="post">
+                    <button type="submit" class="btn btn-outline btn-block">🚪 Logout</button>
+                </form>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div class="page-header">
+                <h1>📊 <span th:text="${subject.name}">Subject</span> - Section <span th:text="${section.name}">A</span>
+                </h1>
+                <div class="user-menu">
+                    <a th:href="@{/teacher/reports}" class="btn btn-outline btn-sm">← Back to Reports</a>
+                    <button id="themeToggle" onclick="toggleTheme()" class="btn btn-outline btn-sm"
+                        title="Toggle Theme">☀️</button>
+                </div>
+            </div>
+
+            <!-- Summary Cards -->
+            <div class="stats-grid mb-4">
+                <div class="stat-card">
+                    <div class="stat-icon">👥</div>
+                    <div class="stat-value" th:text="${totalStudents}">0</div>
+                    <div class="stat-label">Total Students</div>
+                </div>
+            </div>
+
+            <!-- Student Attendance Table -->
+            <div class="card">
+                <h3 class="mb-3">Student Attendance Statistics</h3>
+                <p class="text-muted mb-3">Click on a student to view their detailed attendance history.</p>
+
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Roll No</th>
+                                <th>Name</th>
+                                <th>Total Classes</th>
+                                <th>Present</th>
+                                <th>Absent</th>
+                                <th>Late</th>
+                                <th>Attendance %</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="stat : ${studentStats}">
+                                <td th:text="${stat.rollNumber}"></td>
+                                <td th:text="${stat.name}"></td>
+                                <td th:text="${stat.totalClasses}"></td>
+                                <td><span class="badge badge-success" th:text="${stat.present}"></span></td>
+                                <td><span class="badge badge-danger" th:text="${stat.absent}"></span></td>
+                                <td><span class="badge badge-warning" th:text="${stat.late}"></span></td>
+                                <td>
+                                    <div class="progress-bar-container"
+                                        style="width: 100px; background: #e0e0e0; border-radius: 4px; overflow: hidden;">
+                                        <div class="progress-bar"
+                                            th:style="'width: ' + ${stat.percentage} + '%; background: ' + (${stat.percentage >= 75} ? '#28a745' : (${stat.percentage >= 60} ? '#ffc107' : '#dc3545')) + '; height: 20px; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.75rem;'"
+                                            th:text="${stat.percentage} + '%'">
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge"
+                                        th:classappend="${stat.percentage >= 75} ? 'badge-success' : (${stat.percentage >= 60} ? 'badge-warning' : 'badge-danger')"
+                                        th:text="${stat.percentage >= 75} ? 'Good' : (${stat.percentage >= 60} ? 'Warning' : 'Critical')">
+                                    </span>
+                                </td>
+                                <td>
+                                    <a th:href="@{'/teacher/reports/student/' + ${stat.id} + '/' + ${subject.id}}"
+                                        class="btn btn-info btn-sm">📋 Details</a>
+                                </td>
+                            </tr>
+                            <tr th:if="${studentStats == null or #lists.isEmpty(studentStats)}">
+                                <td colspan="9" class="text-center text-muted">No students found in this section</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Legend -->
+                <div class="mt-3" style="display: flex; gap: 1rem; font-size: 0.85rem;">
+                    <span><span class="badge badge-success">Good</span> ≥75%</span>
+                    <span><span class="badge badge-warning">Warning</span> 60-74%</span>
+                    <span><span class="badge badge-danger">Critical</span> &lt;60%</span>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script th:src="@{/js/theme.js}"></script>
+</body>
+
+</html>

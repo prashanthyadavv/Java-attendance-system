@@ -11,6 +11,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.stream.Collectors;
 
 @Controller
@@ -22,18 +23,24 @@ public class TeacherController {
     private final TeacherSubjectRepository teacherSubjectRepository;
     private final StudentRepository studentRepository;
     private final AttendanceRepository attendanceRepository;
+    private final SubjectRepository subjectRepository;
+    private final SectionRepository sectionRepository;
 
     public TeacherController(
             UserRepository userRepository,
             TeacherRepository teacherRepository,
             TeacherSubjectRepository teacherSubjectRepository,
             StudentRepository studentRepository,
-            AttendanceRepository attendanceRepository) {
+            AttendanceRepository attendanceRepository,
+            SubjectRepository subjectRepository,
+            SectionRepository sectionRepository) {
         this.userRepository = userRepository;
         this.teacherRepository = teacherRepository;
         this.teacherSubjectRepository = teacherSubjectRepository;
         this.studentRepository = studentRepository;
         this.attendanceRepository = attendanceRepository;
+        this.subjectRepository = subjectRepository;
+        this.sectionRepository = sectionRepository;
     }
 
     private Teacher getCurrentTeacher(UserDetails userDetails) {
@@ -175,5 +182,106 @@ public class TeacherController {
         model.addAttribute("assignments", assignments);
 
         return "teacher/reports";
+    }
+
+    @GetMapping("/reports/{subjectId}/{sectionId}")
+    public String reportDetail(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @PathVariable Long subjectId,
+            @PathVariable Long sectionId,
+            Model model) {
+
+        Teacher teacher = getCurrentTeacher(userDetails);
+        if (teacher == null) {
+            return "redirect:/login";
+        }
+
+        Subject subject = subjectRepository.findById(subjectId).orElse(null);
+        Section section = sectionRepository.findById(sectionId).orElse(null);
+
+        if (subject == null || section == null) {
+            return "redirect:/teacher/reports";
+        }
+
+        // Get all students in the section
+        List<Student> students = studentRepository.findBySection(section);
+
+        // Calculate attendance statistics for each student
+        List<Map<String, Object>> studentStats = new ArrayList<>();
+        for (Student student : students) {
+            Map<String, Object> stats = new HashMap<>();
+            stats.put("id", student.getId());
+            stats.put("name", student.getName());
+            stats.put("rollNumber", student.getRollNumber());
+
+            long total = attendanceRepository.countByStudentAndSubject(student, subject);
+            long present = attendanceRepository.countByStudentAndSubjectAndStatus(student, subject,
+                    AttendanceStatus.PRESENT);
+            long absent = attendanceRepository.countByStudentAndSubjectAndStatus(student, subject,
+                    AttendanceStatus.ABSENT);
+            long late = attendanceRepository.countByStudentAndSubjectAndStatus(student, subject, AttendanceStatus.LATE);
+
+            stats.put("totalClasses", total);
+            stats.put("present", present);
+            stats.put("absent", absent);
+            stats.put("late", late);
+
+            // Calculate percentage (present + late count as attended)
+            double percentage = total > 0 ? ((present + late) * 100.0 / total) : 0;
+            stats.put("percentage", Math.round(percentage * 10) / 10.0);
+
+            studentStats.add(stats);
+        }
+
+        model.addAttribute("subject", subject);
+        model.addAttribute("section", section);
+        model.addAttribute("studentStats", studentStats);
+        model.addAttribute("totalStudents", students.size());
+
+        return "teacher/report-detail";
+    }
+
+    @GetMapping("/reports/student/{studentId}/{subjectId}")
+    public String studentAttendanceDetail(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @PathVariable Long studentId,
+            @PathVariable Long subjectId,
+            Model model) {
+
+        Teacher teacher = getCurrentTeacher(userDetails);
+        if (teacher == null) {
+            return "redirect:/login";
+        }
+
+        Student student = studentRepository.findById(studentId).orElse(null);
+        Subject subject = subjectRepository.findById(subjectId).orElse(null);
+
+        if (student == null || subject == null) {
+            return "redirect:/teacher/reports";
+        }
+
+        // Get all attendance records for this student and subject
+        List<Attendance> attendanceRecords = attendanceRepository.findByStudentAndSubject(student, subject);
+
+        // Sort by date descending
+        attendanceRecords.sort((a, b) -> b.getDate().compareTo(a.getDate()));
+
+        // Calculate statistics
+        long total = attendanceRecords.size();
+        long present = attendanceRecords.stream().filter(a -> a.getStatus() == AttendanceStatus.PRESENT).count();
+        long absent = attendanceRecords.stream().filter(a -> a.getStatus() == AttendanceStatus.ABSENT).count();
+        long late = attendanceRecords.stream().filter(a -> a.getStatus() == AttendanceStatus.LATE).count();
+        double percentage = total > 0 ? ((present + late) * 100.0 / total) : 0;
+
+        model.addAttribute("student", student);
+        model.addAttribute("subject", subject);
+        model.addAttribute("attendanceRecords", attendanceRecords);
+        model.addAttribute("totalClasses", total);
+        model.addAttribute("present", present);
+        model.addAttribute("absent", absent);
+        model.addAttribute("late", late);
+        model.addAttribute("percentage", Math.round(percentage * 10) / 10.0);
+
+        return "teacher/student-attendance";
     }
 }

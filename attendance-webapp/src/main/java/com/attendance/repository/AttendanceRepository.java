@@ -29,4 +29,14 @@ public interface AttendanceRepository extends JpaRepository<Attendance, Long> {
 
     @Query("SELECT a FROM Attendance a WHERE a.subject = :subject AND a.date = :date AND a.student.section = :section")
     List<Attendance> findBySubjectAndDateAndSection(Subject subject, LocalDate date, Section section);
+
+    // New methods for teacher reports
+    @Query("SELECT COUNT(a) FROM Attendance a WHERE a.student = :student AND a.subject = :subject AND a.status = :status")
+    long countByStudentAndSubjectAndStatus(Student student, Subject subject, AttendanceStatus status);
+
+    @Query("SELECT COUNT(a) FROM Attendance a WHERE a.student = :student AND a.subject = :subject")
+    long countByStudentAndSubject(Student student, Subject subject);
+
+    @Query("SELECT a FROM Attendance a WHERE a.subject = :subject AND a.student.section = :section ORDER BY a.date DESC")
+    List<Attendance> findBySubjectAndSection(Subject subject, Section section);
 }

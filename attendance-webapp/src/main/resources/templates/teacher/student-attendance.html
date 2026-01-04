@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Attendance - Teacher</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link th:href="@{/css/styles.css}" rel="stylesheet">
+</head>
+
+<body>
+    <div class="dashboard">
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <h2>🎓 Attendance</h2>
+                <p class="text-muted" style="font-size: 0.8rem;">Teacher Panel</p>
+            </div>
+            <ul class="sidebar-nav">
+                <li><a th:href="@{/teacher/dashboard}">📊 Dashboard</a></li>
+                <li><a th:href="@{/teacher/mark-attendance}">✓ Mark Attendance</a></li>
+                <li><a th:href="@{/teacher/reports}" class="active">📈 Reports</a></li>
+            </ul>
+            <div style="position: absolute; bottom: 2rem; left: 1rem; right: 1rem;">
+                <form th:action="@{/logout}" method="post">
+                    <button type="submit" class="btn btn-outline btn-block">🚪 Logout</button>
+                </form>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div class="page-header">
+                <h1>👤 <span th:text="${student.name}">Student Name</span></h1>
+                <div class="user-menu">
+                    <a th:href="@{'/teacher/reports/' + ${subject.id} + '/' + ${student.section.id}}"
+                        class="btn btn-outline btn-sm">← Back</a>
+                    <button id="themeToggle" onclick="toggleTheme()" class="btn btn-outline btn-sm"
+                        title="Toggle Theme">☀️</button>
+                </div>
+            </div>
+
+            <!-- Student Info Card -->
+            <div class="card mb-4">
+                <div
+                    style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                    <div>
+                        <h3 th:text="${student.name}">Student Name</h3>
+                        <p class="text-muted mb-0">Roll No: <strong th:text="${student.rollNumber}">ROLL123</strong></p>
+                        <p class="text-muted mb-0">Subject: <strong th:text="${subject.name}">Subject Name</strong></p>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 2.5rem; font-weight: 700;"
+                            th:classappend="${percentage >= 75} ? 'text-success' : (${percentage >= 60} ? 'text-warning' : 'text-danger')"
+                            th:text="${percentage} + '%'">0%</div>
+                        <div class="text-muted">Attendance</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Summary Stats -->
+            <div class="stats-grid mb-4">
+                <div class="stat-card">
+                    <div class="stat-icon">📚</div>
+                    <div class="stat-value" th:text="${totalClasses}">0</div>
+                    <div class="stat-label">Total Classes</div>
+                </div>
+                <div class="stat-card" style="border-left: 4px solid #28a745;">
+                    <div class="stat-icon">✅</div>
+                    <div class="stat-value" th:text="${present}">0</div>
+                    <div class="stat-label">Present</div>
+                </div>
+                <div class="stat-card" style="border-left: 4px solid #dc3545;">
+                    <div class="stat-icon">❌</div>
+                    <div class="stat-value" th:text="${absent}">0</div>
+                    <div class="stat-label">Absent</div>
+                </div>
+                <div class="stat-card" style="border-left: 4px solid #ffc107;">
+                    <div class="stat-icon">⏰</div>
+                    <div class="stat-value" th:text="${late}">0</div>
+                    <div class="stat-label">Late</div>
+                </div>
+            </div>
+
+            <!-- Attendance History -->
+            <div class="card">
+                <h3 class="mb-3">📅 Attendance History</h3>
+
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Day</th>
+                                <th>Period</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="record : ${attendanceRecords}">
+                                <td th:text="${#temporals.format(record.date, 'dd MMM yyyy')}"></td>
+                                <td th:text="${#temporals.dayOfWeekName(record.date)}"></td>
+                                <td th:text="${record.period}"></td>
+                                <td>
+                                    <span class="badge"
+                                        th:classappend="${record.status.name() == 'PRESENT'} ? 'badge-success' : (${record.status.name() == 'ABSENT'} ? 'badge-danger' : 'badge-warning')"
+                                        th:text="${record.status}">
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr th:if="${attendanceRecords == null or #lists.isEmpty(attendanceRecords)}">
+                                <td colspan="4" class="text-center text-muted">No attendance records found</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script th:src="@{/js/theme.js}"></script>
+</body>
+
+</html>

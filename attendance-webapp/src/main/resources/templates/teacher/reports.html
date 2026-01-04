@@ -39,7 +39,7 @@
 
             <div class="card">
                 <h3 class="mb-3">My Class Reports</h3>
-                <p class="text-muted mb-3">View attendance statistics for your assigned classes.</p>
+                <p class="text-muted mb-3">Click on a subject to view detailed student attendance statistics.</p>
 
                 <div class="table-container">
                     <table>
@@ -48,6 +48,7 @@
                                 <th>Subject</th>
                                 <th>Section</th>
                                 <th>Course</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -58,9 +59,13 @@
                                 <td
                                     th:text="${assign.section != null and assign.section.course != null ? assign.section.course.name : 'N/A'}">
                                 </td>
+                                <td>
+                                    <a th:href="@{'/teacher/reports/' + ${assign.subject.id} + '/' + ${assign.section.id}}"
+                                        class="btn btn-primary btn-sm">📊 View Details</a>
+                                </td>
                             </tr>
                             <tr th:if="${assignments == null or #lists.isEmpty(assignments)}">
-                                <td colspan="3" class="text-center text-muted">No assignments found</td>
+                                <td colspan="4" class="text-center text-muted">No assignments found</td>
                             </tr>
                         </tbody>
                     </table>
